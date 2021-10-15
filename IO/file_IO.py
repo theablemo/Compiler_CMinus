@@ -38,6 +38,7 @@ class ErrorType(Enum):
     UNCLOSED_COMMENT = 'Unclosed comment'
     UNMACHED_COMMENT = 'Unmatched comment'
 
+#Writes error in the file after termination
 class LexicalErrorIO:
     def __init__(self) -> None:
         self.file = open("lexical_errors.txt","at")
@@ -52,6 +53,20 @@ class LexicalErrorIO:
     def close_file(self):
         if self.written == False:
             self.file.write('There is no lexical error.')
+        self.file.close()
+
+#Writes symbols one at a time
+class SymbolTableIO:
+    def __init__(self) -> None:
+        self.file = open("symbol_table.txt", "wt")
+        self.file.write(input_process.write_keywords())
+        self.entry_count = input_process.number_of_keywords()+ 1
+        self.file.close()
+
+    def write_identifier(self, lexeme: str):
+        self.file = open("symbol_table.txt", "at")
+        self.file.write(self.entry_count + '.' + chr(9) + lexeme + chr(10))
+        self.entry_count += 1
         self.file.close()
 
 

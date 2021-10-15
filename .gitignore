@@ -1,4 +1,5 @@
 .python-version
 input.txt
 lexical_errors.txt
+symbol_table.txt
 __pycache__/
