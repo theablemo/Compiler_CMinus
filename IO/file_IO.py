@@ -70,3 +70,27 @@ class SymbolTableIO:
         self.file.close()
 
 
+class TokenType(Enum):
+    NUM = 'NUM'
+    ID = 'ID'
+    KEYWORD = 'KEYWORD'
+    SYMBOL = 'SYMBOL'
+
+#Writes tokens one at a time
+class TokenIO:
+    def __init__(self) -> None:
+        self.current_lineno = 1
+        self.has_written = False
+    def write_token(self, lineno: int, lexeme: str, token_type: TokenType):
+        file = open("tokens.txt" , "at")
+        if not self.has_written:
+            file.write(str(lineno) + '.' + chr(9))
+            self.has_written = True
+            self.current_lineno = lineno
+        if self.current_lineno != lineno:
+            file.write(chr(10) + str(lineno) + '.' + chr(9))
+            self.current_lineno = lineno
+        file.write('(' + token_type.value + ', ' + lexeme  + ') ')
+        file.close()
+
+
