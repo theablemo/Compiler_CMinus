@@ -15,6 +15,7 @@ class Scanner:
         end = False
         a = self.inputFile.get_char()
         if input_check.is_EOF(a):
+            self.do_before_terminate()
             end = True
         print(a)
         return end
