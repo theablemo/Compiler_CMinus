@@ -18,6 +18,3 @@ class Scanner:
             end = True
         print(a)
         return end
-    
-    def print_token(self):
-        self.tokenFile.write_token(10,"asdfa",TokenType.KEYWORD)

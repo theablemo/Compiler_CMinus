@@ -1,4 +1,3 @@
-from os import truncate
 from IO import input_check, input_process
 from enum import Enum
 class InputFileIO:
