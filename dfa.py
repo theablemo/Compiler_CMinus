@@ -9,7 +9,8 @@ class Dfa:
                     'e4': err.UNCLOSED_COMMENT,
                     'e5': err.UNCLOSED_COMMENT}
 
-    ACCEPTING_STATES = {'2', '4', '5', '7', '9', 'c', 'f'}
+    ACCEPTING_STATES = {'5', '7', 'c', 'f'}
+    STAR_ACCEPTING_STATES = {'2', '4', '9'}
 
     def __init__(self):
         self.dfa = {
@@ -67,6 +68,9 @@ class Dfa:
 
     def is_accepting(self):
         return self.current_state in Dfa.ACCEPTING_STATES
+
+    def is_accepting_with_return(self):
+        return self.current_state in Dfa.STAR_ACCEPTING_STATES
 
     def is_error(self):
         return self.current_state in Dfa.ERROR_STATES
