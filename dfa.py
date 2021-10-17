@@ -55,7 +55,7 @@ class Dfa:
                 tr.EOF: 'e5'
             },
             'e': {
-                '*': 'e',
+                '/': 'e',
                 tr.EOF: 'e5',
                 tr.OTHER7: 'd'
             }

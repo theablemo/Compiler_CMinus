@@ -75,6 +75,7 @@ class TokenType(Enum):
     ID = 'ID'
     KEYWORD = 'KEYWORD'
     SYMBOL = 'SYMBOL'
+    END = 'END'
 
 #Writes tokens one at a time
 class TokenIO:

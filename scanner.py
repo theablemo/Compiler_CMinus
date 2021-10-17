@@ -15,68 +15,107 @@ class Scanner:
         self.inputFile.close_file()
         self.errorFile.close_file()
 
-    def get_next_token(self) -> bool:
+    def get_next_token(self):
         a = self.inputFile.get_char()
+        self.dfa.reset_current_state()  # Make sure that we are at state 0
         token = self._handle_input(a)
-        if input_check.is_EOF(a):
-            return True
-        print(a)
-        return False
+        print(token)
+        if token is None:
+            return self.get_next_token()
+        return token
 
     def print_token(self):
         self.tokenFile.write_token(10, "asdfa", TokenType.KEYWORD)
 
     def _handle_input(self, initial):
-        self.dfa.reset_current_state()  # Make sure that we are at state 0
+        if input_check.is_EOF(initial):
+            return initial, TokenType.END
         if initial.isalpha():
             return self._handle_id_and_keyword(initial)
         elif initial.isnumeric():
             return self._handle_num(initial)
         elif input_check.is_symbol(initial):
-            self._handle_symbol(initial)
+            return initial, TokenType.SYMBOL
         elif initial == '=':
-            self._handle_equality(initial)
+            return self._handle_equality(initial)
         elif initial == '*':
-            self._handle_star(initial)
+            return self._handle_star(initial)
         elif initial == '/':
-            self._handle_comment(initial)
+            return self._handle_comment(initial)
         elif initial.isspace():
-            self._handle_whitespace(initial)
+            return None
         else:
             self.errorFile.write_error(self.inputFile.lineno, initial, ErrorType.INVALID_INPUT)
 
     def _handle_id_and_keyword(self, initial):
         token = ""
         token += initial
+        self.dfa.move(initial)
         while True:
             character = self.inputFile.get_char()
-            token += character
             self.dfa.move(character)
             if self.dfa.is_accepting_with_return():
                 self.inputFile.go_to_previous_char()
                 if input_process.is_keyword(token):
                     return token, TokenType.KEYWORD
                 return token, TokenType.ID
+            token += character
             if self.dfa.is_error():
-                error = self.dfa.get_error()
-                self.errorFile.write_error(self.inputFile.lineno, token, error)
-                return None
+                return self._handle_error(token)
 
+    def _handle_error(self, token):
+        error = self.dfa.get_error()
+        self.errorFile.write_error(self.inputFile.lineno, token, error)
+        return None
 
     def _handle_num(self, initial):
-        pass
-
-    def _handle_symbol(self, initial):
-        pass
+        token = ""
+        token += initial
+        self.dfa.move(initial)
+        while True:
+            character = self.inputFile.get_char()
+            self.dfa.move(character)
+            if self.dfa.is_accepting_with_return():
+                self.inputFile.go_to_previous_char()
+                return token, TokenType.NUM
+            token += character
+            if self.dfa.is_error():
+                return self._handle_error(token)
 
     def _handle_equality(self, initial):
-        pass
+        token = ""
+        token += initial
+        self.dfa.move(initial)
+        character = self.inputFile.get_char()
+        self.dfa.move(character)
+        if self.dfa.is_accepting():
+            return token, TokenType.SYMBOL
+        if self.dfa.is_accepting_with_return():
+            self.inputFile.go_to_previous_char()
+            return token, TokenType.SYMBOL
 
     def _handle_star(self, initial):
-        pass
+        self.dfa.move(initial)
+        character = self.inputFile.get_char()
+        self.dfa.move(character)
+        if self.dfa.is_accepting_with_return():
+            self.inputFile.go_to_previous_char()
+            return initial, TokenType.SYMBOL
+        if self.dfa.is_error():
+            return self._handle_error(initial)
 
     def _handle_comment(self, initial):
-        pass
+        token = ""
+        token += initial
+        self.dfa.move(initial)
+        while True:
+            character = self.inputFile.get_char()
+            token += character
+            self.dfa.move(character)
+            if self.dfa.is_accepting():
+                return None
+            if self.dfa.is_error():
+                return self._handle_error(token)
 
-    def _handle_whitespace(self, initial):
-        pass
+    def write_token(self, token):
+        self.tokenFile.write_token(self.inputFile.lineno, token[0], token[1])
