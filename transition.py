@@ -35,8 +35,10 @@ class Transition(Enum):
             return Transition.OTHER1
         if state == '3' and (c.isalpha() or Transition.is_invalid_token(c)):
             return Transition.INVALID_TOKEN_OR_LETTER
-        if state == '3' and (not (Transition.is_invalid_token(c) or c.isalpha())):
+        if state == '3' and (not (c.isalnum() or Transition.is_invalid_token(c))):
             return Transition.OTHER2
+        if state == '3' and c.isnumeric():
+            return Transition.DIGIT
         if state == '6' and (c != '=' and not Transition.is_invalid_token(c)):
             return Transition.OTHER3
         if state == '8' and (c != '/' and not Transition.is_invalid_token(c)):
