@@ -112,8 +112,6 @@ class Scanner:
         self.dfa.move(initial)
         while True:
             character = self.inputFile.get_char()
-            if input_check.is_EOF(character):
-                return character, TokenType.END
             token += character
             self.dfa.move(character)
             if self.dfa.is_accepting():

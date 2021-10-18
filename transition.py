@@ -45,10 +45,10 @@ class Transition(Enum):
             return Transition.ENTER
         if state == 'b' and not input_check.is_newLine(c):
             return Transition.OTHER5
-        if state == 'd' and c != '*':
-            return Transition.OTHER6
         if input_check.is_EOF(c):
             return Transition.EOF
+        if state == 'd' and c != '*':
+            return Transition.OTHER6
         if state == 'e' and c != '*' and c != '/':
             return Transition.OTHER7
         if c.isspace():
