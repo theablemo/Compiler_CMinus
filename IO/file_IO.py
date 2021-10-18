@@ -62,12 +62,15 @@ class SymbolTableIO:
         self.file.write(input_process.write_keywords())
         self.entry_count = input_process.number_of_keywords()+ 1
         self.file.close()
+        self.identifiers = set()
 
     def write_identifier(self, lexeme: str):
-        self.file = open("symbol_table.txt", "at")
-        self.file.write(str(self.entry_count) + '.' + chr(9) + lexeme + chr(10))
-        self.entry_count += 1
-        self.file.close()
+        if lexeme not in self.identifiers:
+            self.identifiers.add(lexeme)
+            self.file = open("symbol_table.txt", "at")
+            self.file.write(str(self.entry_count) + '.' + chr(9) + lexeme + chr(10))
+            self.entry_count += 1
+            self.file.close()
 
 
 class TokenType(Enum):
