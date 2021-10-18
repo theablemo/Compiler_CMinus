@@ -64,9 +64,10 @@ class Scanner:
             if self.dfa.is_error():
                 return self._handle_error(token)
 
-    def _handle_error(self, token):
+    def _handle_error(self, token, line=-1):
         error = self.dfa.get_error()
-        self.errorFile.write_error(self.inputFile.lineno, token, error)
+        line_num = line if line != -1 else self.inputFile.lineno
+        self.errorFile.write_error(line_num, token, error)
         return None
 
     def _handle_num(self, initial):
@@ -109,6 +110,7 @@ class Scanner:
     def _handle_comment(self, initial):
         token = ""
         token += initial
+        line_num = self.inputFile.lineno
         self.dfa.move(initial)
         while True:
             character = self.inputFile.get_char()
@@ -117,7 +119,9 @@ class Scanner:
             if self.dfa.is_accepting():
                 return None
             if self.dfa.is_error():
-                return self._handle_error(token)
+                # To write the unclosed comment error with the correct line number, we should pass the "starting
+                # line" of the comment, which is line_num
+                return self._handle_error(token, line_num)
 
     def write_token(self, token):
         self.tokenFile.write_token(self.inputFile.lineno, token[0], token[1])
