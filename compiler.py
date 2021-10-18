@@ -5,7 +5,7 @@ from scanner import Scanner
 
 scanner = Scanner()
 while (True):
-    a = input()
+    # a = input()
     token = scanner.get_next_token()
     if token[1] == TokenType.END:
         break
