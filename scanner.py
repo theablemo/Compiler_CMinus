@@ -29,6 +29,7 @@ class Scanner:
 
     def _handle_input(self, initial):
         if input_check.is_EOF(initial):
+            self.do_before_terminate()
             return initial, TokenType.END
         if initial.isalpha():
             return self._handle_id_and_keyword(initial)
@@ -125,3 +126,5 @@ class Scanner:
 
     def write_token(self, token):
         self.tokenFile.write_token(self.inputFile.lineno, token[0], token[1])
+
+
