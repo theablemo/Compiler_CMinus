@@ -106,7 +106,8 @@ class Scanner:
             self.inputFile.go_to_previous_char()
             return initial, TokenType.SYMBOL
         if self.dfa.is_error():
-            return self._handle_error(initial)
+            token = initial + character
+            return self._handle_error(token)
 
     def _handle_comment(self, initial):
         token = ""
