@@ -65,7 +65,7 @@ class SymbolTableIO:
 
     def write_identifier(self, lexeme: str):
         self.file = open("symbol_table.txt", "at")
-        self.file.write(self.entry_count + '.' + chr(9) + lexeme + chr(10))
+        self.file.write(str(self.entry_count) + '.' + chr(9) + lexeme + chr(10))
         self.entry_count += 1
         self.file.close()
 

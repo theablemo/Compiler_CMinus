@@ -58,6 +58,7 @@ class Scanner:
                 self.inputFile.go_to_previous_char()
                 if input_process.is_keyword(token):
                     return token, TokenType.KEYWORD
+                self.symbolTableFile.write_identifier(token)
                 return token, TokenType.ID
             token += character
             if self.dfa.is_error():
@@ -89,6 +90,7 @@ class Scanner:
         character = self.inputFile.get_char()
         self.dfa.move(character)
         if self.dfa.is_accepting():
+            token += character
             return token, TokenType.SYMBOL
         if self.dfa.is_accepting_with_return():
             self.inputFile.go_to_previous_char()
@@ -110,6 +112,8 @@ class Scanner:
         self.dfa.move(initial)
         while True:
             character = self.inputFile.get_char()
+            if input_check.is_EOF(character):
+                return character, TokenType.END
             token += character
             self.dfa.move(character)
             if self.dfa.is_accepting():
