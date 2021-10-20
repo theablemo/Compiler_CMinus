@@ -68,5 +68,6 @@ class Transition(Enum):
                 c == '=' or
                 c == '*' or
                 c == '/' or
-                c.isspace()
+                c.isspace() or
+                input_check.is_EOF(c)
         )
