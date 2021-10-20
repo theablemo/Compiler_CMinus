@@ -91,12 +91,15 @@ class Scanner:
         self.dfa.move(initial)
         character = self.inputFile.get_char()
         self.dfa.move(character)
-        if self.dfa.is_accepting():
-            token += character
-            return token, TokenType.SYMBOL
         if self.dfa.is_accepting_with_return():
             self.inputFile.go_to_previous_char()
             return token, TokenType.SYMBOL
+        token += character
+
+        if self.dfa.is_accepting():
+            return token, TokenType.SYMBOL
+        if self.dfa.is_error():
+            return self._handle_error(token)
 
     def _handle_star(self, initial):
         self.dfa.move(initial)

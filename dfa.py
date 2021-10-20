@@ -82,4 +82,8 @@ class Dfa:
         t = tr.get_transition(character, self.current_state)
         # TODO: CLEAR DEBUG PRINTS!
         print(f'{self.current_state}: {t}')
-        self.current_state = self.dfa[self.current_state].get(t)
+        next_state = self.dfa[self.current_state].get(t)
+        if next_state is None:
+            self.current_state = "e1"
+        else:
+            self.current_state = self.dfa[self.current_state].get(t)
