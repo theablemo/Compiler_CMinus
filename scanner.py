@@ -126,7 +126,7 @@ class Scanner:
             if self.dfa.is_error():
                 # To write the unclosed comment error with the correct line number, we should pass the "starting
                 # line" of the comment, which is line_num
-                return self._handle_error(token, line_num)
+                return self._handle_error(token.strip(), line_num)
 
     def write_token(self, token):
         self.tokenFile.write_token(self.inputFile.lineno, token[0], token[1])
