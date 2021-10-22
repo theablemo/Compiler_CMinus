@@ -1,5 +1,5 @@
 from IO.file_IO import ErrorType as err
-from transition import Transition as tr
+from scanner_sup.transition import Transition as tr
 
 
 class Dfa:
@@ -81,7 +81,7 @@ class Dfa:
     def move(self, character):
         t = tr.get_transition(character, self.current_state)
         # TODO: CLEAR DEBUG PRINTS!
-        print(f'{self.current_state}: {t}')
+        # print(f'{self.current_state}: {t}')
         next_state = self.dfa[self.current_state].get(t)
         if next_state is None:
             self.current_state = "e1"

@@ -1,4 +1,4 @@
-from os import truncate
+import os
 from IO import input_check, input_process
 from enum import Enum
 class InputFileIO:
@@ -41,6 +41,8 @@ class ErrorType(Enum):
 #Writes error in the file after termination
 class LexicalErrorIO:
     def __init__(self) -> None:
+        if os.path.exists("lexical_errors.txt"):
+            os.remove("lexical_errors.txt")
         self.file = open("lexical_errors.txt","at")
         self.written = False
     
@@ -58,6 +60,8 @@ class LexicalErrorIO:
 #Writes symbols one at a time
 class SymbolTableIO:
     def __init__(self) -> None:
+        if os.path.exists("symbol_table.txt"):
+            os.remove("symbol_table.txt")
         self.file = open("symbol_table.txt", "wt")
         self.file.write(input_process.write_keywords())
         self.entry_count = input_process.number_of_keywords()+ 1
@@ -83,6 +87,8 @@ class TokenType(Enum):
 #Writes tokens one at a time
 class TokenIO:
     def __init__(self) -> None:
+        if os.path.exists("tokens.txt"):
+            os.remove("tokens.txt")
         self.current_lineno = 1
         self.has_written = False
     def write_token(self, lineno: int, lexeme: str, token_type: TokenType):

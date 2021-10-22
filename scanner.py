@@ -1,6 +1,6 @@
 from IO.file_IO import ErrorType, TokenType, InputFileIO, LexicalErrorIO, SymbolTableIO, TokenIO
 from IO import input_check, input_process
-from dfa import Dfa
+from scanner_sup.dfa import Dfa
 
 
 class Scanner:
@@ -19,7 +19,7 @@ class Scanner:
         a = self.inputFile.get_char()
         self.dfa.reset_current_state()  # Make sure that we are at state 0
         token = self._handle_input(a)
-        print(token)
+        # print(token)
         if token is None:
             return self.get_next_token()
         return token
