@@ -129,6 +129,7 @@ class Scanner:
                 # To write the unclosed comment error with the correct line number, we should pass the "starting
                 # line" of the comment, which is line_num
                 if not tr.is_invalid_token(character):
+                    self.inputFile.go_to_previous_char()
                     token = token[:-1]
                 return self._handle_error(token, line_num)
 
