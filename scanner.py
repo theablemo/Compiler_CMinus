@@ -1,6 +1,7 @@
 from IO.file_IO import ErrorType, TokenType, InputFileIO, LexicalErrorIO, SymbolTableIO, TokenIO
 from IO import input_check, input_process
 from scanner_sup.dfa import Dfa
+from scanner_sup.transition import Transition as tr
 
 
 class Scanner:
@@ -127,7 +128,9 @@ class Scanner:
             if self.dfa.is_error():
                 # To write the unclosed comment error with the correct line number, we should pass the "starting
                 # line" of the comment, which is line_num
-                return self._handle_error(token.strip(), line_num)
+                if not tr.is_invalid_token(character):
+                    token = token[:-1]
+                return self._handle_error(token, line_num)
 
     def write_token(self, token):
         self.tokenFile.write_token(self.inputFile.lineno, token[0], token[1])
