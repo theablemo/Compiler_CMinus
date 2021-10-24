@@ -35,11 +35,13 @@ class InputFileIO:
             self.inputStack.reverse()
         # if not input_check.is_EOF(a) and ord(a) == 10:
         #     self.lineno += 1
-        if self.lineno < 10:
-            if ord(a) < 127 and ord(a) > 32:
-                print(f"{self.lineno}: {a}")
-            else:
-                print(f"{self.lineno}: ord({ord(a)})")
+
+        #printing outputs
+        # if self.lineno < 10:
+        #     if ord(a) < 127 and ord(a) > 32:
+        #         print(f"{self.lineno}: {a}")
+        #     else:
+        #         print(f"{self.lineno}: ord({ord(a)})")
             
         return a
 
@@ -63,16 +65,26 @@ class LexicalErrorIO:
             os.remove("lexical_errors.txt")
         self.file = open("lexical_errors.txt","at")
         self.written = False
+        self.current_lineno = 0
     
     def write_error(self,lineno: int,lexeme: str,errorType: ErrorType):
-        self.written = True
         if errorType == ErrorType.UNCLOSED_COMMENT and len(lexeme) > 7:
             lexeme = input_process.truncate_unclosed_comment(lexeme)
-        self.file.write(str(lineno)+'.' + chr(9) + '(' + lexeme + ', ' + errorType.value + ') ' + chr(10))
-
+        if lineno != self.current_lineno:
+            # self.file.write(str(lineno)+'.' + chr(9) + '(' + lexeme + ', ' + errorType.value + ') ' + chr(10))
+            if self.written:
+                self.file.write(chr(10))
+            self.file.write(str(lineno)+'.' + chr(9) + '(' + lexeme + ', ' + errorType.value + ') ')
+            self.current_lineno = lineno
+        else:
+            self.file.write('(' + lexeme + ', ' + errorType.value + ') ')
+        self.written = True
+        
     def close_file(self):
         if self.written == False:
             self.file.write('There is no lexical error.')
+        else:
+            self.file.write(chr(10))
         self.file.close()
 
 #Writes symbols one at a time
