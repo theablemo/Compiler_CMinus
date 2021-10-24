@@ -9,20 +9,38 @@ class InputFileIO:
         self.inputStack = []
         self.previous_char_stack = []
         self.previous_char_count = 0
+        self.previous_char = ''
+        self.backed = False
     
     def get_char(self):
+        if not input_check.is_EOF(self.previous_char) and ord(self.previous_char) == 10:
+            if not self.backed:
+                self.lineno += 1
+            # else:
+            #     self.lineno -= 1
+        
         if self.previous_char_count == 0:
             a = self.file.read(1)
+            self.backed = False
         else:
             a = self.previous_char_stack.pop()
             self.previous_char_count -= 1
+            self.backed = True
+        self.previous_char = a
+
         self.inputStack.append(a)
         if len(self.inputStack) > 5:
             self.inputStack.reverse()
             self.inputStack.pop()
             self.inputStack.reverse()
-        if not input_check.is_EOF(a) and ord(a) == 10:
-            self.lineno += 1
+        # if not input_check.is_EOF(a) and ord(a) == 10:
+        #     self.lineno += 1
+        if self.lineno < 10:
+            if ord(a) < 127 and ord(a) > 32:
+                print(f"{self.lineno}: {a}")
+            else:
+                print(f"{self.lineno}: ord({ord(a)})")
+            
         return a
 
     def go_to_previous_char(self):
