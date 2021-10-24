@@ -17,11 +17,6 @@ class Scanner:
 
     def get_next_token(self):
         a = self.inputFile.get_char()
-        if input_check.is_EOF(a):
-            self.do_before_terminate()
-            end = True
-        print(a)
-        return end
         
         self.dfa.reset_current_state()  # Make sure that we are at state 0
         token = self._handle_input(a)
