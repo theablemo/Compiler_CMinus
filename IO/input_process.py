@@ -1,6 +1,10 @@
 keywords = ['if', 'else', 'void', 'int', 'repeat', 'break', 'until', 'return']
+
+
 def truncate_unclosed_comment(comment):
     return comment[:7] + '...'
+
+
 def write_keywords():
     res = ''
     i = 1
@@ -9,6 +13,10 @@ def write_keywords():
         i += 1
     return res
 
+
 def number_of_keywords():
     return len(keywords)
-    
+
+
+def is_keyword(lexeme):
+    return lexeme in keywords
