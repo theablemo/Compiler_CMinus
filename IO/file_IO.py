@@ -33,15 +33,6 @@ class InputFileIO:
             self.inputStack.reverse()
             self.inputStack.pop()
             self.inputStack.reverse()
-        # if not input_check.is_EOF(a) and ord(a) == 10:
-        #     self.lineno += 1
-
-        #printing outputs
-        # if self.lineno < 10:
-        #     if ord(a) < 127 and ord(a) > 32:
-        #         print(f"{self.lineno}: {a}")
-        #     else:
-        #         print(f"{self.lineno}: ord({ord(a)})")
             
         return a
 
