@@ -21,7 +21,7 @@ class Scanner:
         
         self.dfa.reset_current_state()  # Make sure that we are at state 0
         token = self._handle_input(a)
-        # print(token) # are yedoone dg ham inja bara test
+        # print(token)
         if token is None:
             return self.get_next_token()
         return token
