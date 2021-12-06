@@ -1,6 +1,8 @@
 .python-version
-input.txt
-lexical_errors.txt
-symbol_table.txt
-tokens.txt
+*.txt
+# input.txt
+# lexical_errors.txt
+# symbol_table.txt
+# tokens.txt
 __pycache__/
+# parse_tree.txt
