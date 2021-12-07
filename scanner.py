@@ -27,7 +27,7 @@ class Scanner:
         # print(token)
         if token is None:
             return self.get_next_token()
-        return token
+        return (*token, self.inputFile.lineno)
 
     def print_token(self):
         self.tokenFile.write_token(10, "asdfa", TokenType.KEYWORD)
