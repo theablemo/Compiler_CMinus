@@ -7,9 +7,12 @@ from scanner_sup.transition import Transition as tr
 class Scanner:
     def __init__(self) -> None:
         self.inputFile = InputFileIO()
-        self.errorFile = LexicalErrorIO()
-        self.symbolTableFile = SymbolTableIO()
-        self.tokenFile = TokenIO()
+        # self.errorFile = LexicalErrorIO()
+        self.errorFile = LexicalErrorIO(False)
+        # self.symbolTableFile = SymbolTableIO()
+        self.symbolTableFile = SymbolTableIO(False)
+        # self.tokenFile = TokenIO()
+        self.tokenFile = TokenIO(False)
         self.dfa = Dfa()
 
     def do_before_terminate(self):
