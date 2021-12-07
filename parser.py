@@ -54,4 +54,140 @@ class Parser:
     def handle_error(self, error_type):
         pass
 
+    def program(self):
+        pass
+
+    def declaration_list(self):
+        pass
+
+    def declaration(self):
+        pass
+
+    def declaration_initial(self):
+        pass
+
+    def declaration_prime(self):
+        pass
+
+    def var_declaration_prime(self):
+        pass
+
+    def fun_declaration_prime(self):
+        pass
+
+    def type_specifier(self):
+        pass
+
+    def params(self):
+        pass
+
+    def param_list(self):
+        pass
+
+    def param(self):
+        pass
+
+    def param_prime(self):
+        pass
+
+    def compound_stmt(self):
+        pass
+
+    def statement_list(self):
+        pass
+
+    def statement(self):
+        pass
+
+    def expression_stmt(self):
+        pass
+
+    def selection_stmt(self):
+        pass
+
+    def else_stmt(self):
+        pass
+
+    def iteration_stmt(self):
+        pass
+
+    def return_stmt(self):
+        pass
+
+    def return_stmt_prime(self):
+        pass
+
+    def expression(self):
+        pass
+
+    def b(self):
+        pass
+
+    def h(self):
+        pass
+
+    def simple_expression_zegond(self):
+        pass
+
+    def simple_expression_prime(self):
+        pass
+
+    def c(self):
+        pass
+
+    def relop(self):
+        pass
+
+    def additive_expression(self):
+        pass
+
+    def additive_expression_prime(self):
+        pass
+
+    def additive_expression_zegond(self):
+        pass
+
+    def d(self):
+        pass
+
+    def addop(self):
+        pass
+
+    def term(self):
+        pass
+
+    def term_prime(self):
+        pass
+
+    def term_zegond(self):
+        pass
+
+    def g(self):
+        pass
+
+    def factor(self):
+        pass
+
+    def var_call_prime(self):
+        pass
+
+    def var_prime(self):
+        pass
+
+    def factor_prime(self):
+        pass
+
+    def factor_zegond(self):
+        pass
+
+    def args(self):
+        pass
+
+    def arg_list(self):
+        pass
+
+    def arg_list_prime(self):
+        pass
+
+
 
