@@ -4,6 +4,7 @@ from anytree import Node
 from IO.file_IO import TokenType
 from parser_sup.non_terminal import first_dictionary, follow_dictionary, NonTerminal
 
+
 #
 # class NonTerminal:
 #     def __init__(self, name, first, follow) -> None:
@@ -15,14 +16,15 @@ class Terminal:
     def __init__(self, lexeme) -> None:
         self.lexeme = lexeme
 
+
 class Link:
     def __init__(self, parameter, father, child) -> None:
         self.parameter = parameter
         self.father = father
         self.child = child
-    
+
     def is_terminal(self):
-        if isinstance (self.parameter, Terminal):
+        if isinstance(self.parameter, Terminal):
             return True
         return False
 
@@ -32,7 +34,7 @@ class Link:
 #         self.father_NT = father_NT
 #         self.out_links = out_links
 #         self.number = number
-        
+
 class ErrorType(Enum):
     NOT_IN_FOLLOW = auto()
     IN_FOLLOW = auto()
@@ -41,8 +43,8 @@ class ErrorType(Enum):
 
 class Parser:
     def __init__(self, scanner) -> None:
-        #initialize all terminal, nonterminals, nodes, and links
-        #keep nodes in a dict
+        # initialize all terminal, nonterminals, nodes, and links
+        # keep nodes in a dict
         self.nodes = {}
         self.current_node = 0
         self.scanner = scanner
@@ -56,7 +58,7 @@ class Parser:
                 pass
             else:
                 pass
-        
+
     def handle_error(self, error_type):
         pass
 
@@ -70,19 +72,16 @@ class Parser:
                     children.append(self.declaration_list())
                     self.current_node = 1
                 if self._is_in_follow_set(NonTerminal.PROGRAM):
-                    # TODO: handle missing NT
+                    self._handle_missing_non_term(NonTerminal.PROGRAM.value)
                     return None
                 else:
-                    # TODO: handle invalid input
-                    self._move_lookahead()
+                    self._handle_invalid_input()
                     return self.program()
             elif self.current_node == 1:
                 if self.lookahead[1] is TokenType.END:
-                    self.current_node = 2
+                    self._add_leaf_to_tree(children, parent, 2)
                 else:
-                    # TODO: handle missing token
-                    self.current_node = 2
-                    self._move_lookahead()
+                    self._handle_missing_token("$", 2)
         return self._make_tree(parent, children)
 
     def declaration_list(self):
@@ -97,11 +96,10 @@ class Parser:
                 if self._is_epsilon_move_valid(NonTerminal.DECLARATION_LIST):
                     return None
                 if self._is_in_follow_set(NonTerminal.DECLARATION_LIST):
-                    # TODO: handle missing NT
+                    self._handle_missing_non_term(NonTerminal.DECLARATION_LIST.value)
                     return None
                 else:
-                    # TODO: handle invalid input
-                    self._move_lookahead()
+                    self._handle_invalid_input()
                     return self.declaration_list()
             elif self.current_node == 4:
                 self.current_node = 3
@@ -110,16 +108,96 @@ class Parser:
         return self._make_tree(parent, children)
 
     def declaration(self):
-        pass
+        parent = Node(NonTerminal.DECLARATION.value)
+        children = []
+        while self.current_node != 8:
+            if self.current_node == 6:
+                if self._is_nt_edge_valid(NonTerminal.DECLARATION_INITIAL):
+                    self.current_node = 9
+                    children.append(self.declaration_initial())
+                    self.current_node = 7
+                elif self._is_in_follow_set(NonTerminal.DECLARATION):
+                    self._handle_missing_non_term(NonTerminal.DECLARATION.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.declaration()
+            if self.current_node == 7:
+                self.current_node = 12
+                children.append(self.declaration_prime())
+                self.current_node = 9
+        return self._make_tree(parent, children)
 
     def declaration_initial(self):
-        pass
+        parent = Node(NonTerminal.DECLARATION_INITIAL.value)
+        children = []
+        while self.lookahead != 11:
+            if self.current_node == 9:
+                if self._is_nt_edge_valid(NonTerminal.TYPE_SPECIFIER):
+                    self.current_node = 25
+                    children.append(self.type_specifier())
+                    self.current_node = 10
+                elif self._is_in_follow_set(NonTerminal.DECLARATION):
+                    self._handle_missing_non_term(NonTerminal.DECLARATION_INITIAL.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.declaration_initial()
+            if self.current_node == 10:
+                if self.lookahead[1] is TokenType.ID:
+                    self._add_leaf_to_tree(children, parent, 11)
+                else:
+                    self._handle_missing_token("ID", 11)
+        return self._make_tree(parent, children)
 
     def declaration_prime(self):
-        pass
+        parent = Node(NonTerminal.DECLARATION_PRIME.value)
+        children = []
+        while self.current_node != 13:
+            if self._is_nt_edge_valid(NonTerminal.FUN_DECLARATION_PRIME):
+                self.current_node = 20
+                children.append(self.fun_declaration_prime())
+                self.current_node = 13
+            elif self._is_nt_edge_valid(NonTerminal.VAR_DECLARATION_PRIME):
+                self.current_node = 14
+                children.append(self.var_declaration_prime())
+                self.current_node = 13
+            elif self._is_in_follow_set(NonTerminal.DECLARATION_PRIME):
+                self._handle_missing_non_term(NonTerminal.DECLARATION_PRIME.value)
+                return None
+            else:
+                self._handle_invalid_input()
+                return self.declaration_prime()
+        return self._make_tree(parent, children)
 
     def var_declaration_prime(self):
-        pass
+        parent = Node(NonTerminal.VAR_DECLARATION_PRIME.value)
+        children = []
+        while self.current_node != 19:
+            if self.current_node == 14:
+                if self.lookahead[0] == '[':
+                    self._add_leaf_to_tree(children, parent, 15)
+                elif self.lookahead[0] == ';':
+                    self._add_leaf_to_tree(children, parent, 19)
+                else:
+                    # which edge ??!
+                    self._handle_missing_token('[', 15)
+            elif self.current_node == 15:
+                if self.lookahead[1] is TokenType.NUM:
+                    self._add_leaf_to_tree(children, parent, 17)
+                else:
+                    self._handle_missing_token('NUM', 17)
+            elif self.current_node == 17:
+                if self.lookahead[0] == ']':
+                    self._add_leaf_to_tree(children, parent, 18)
+                else:
+                    self._handle_missing_token(']', 18)
+            elif self.current_node == 18:
+                if self.lookahead[0] == ';':
+                    self._add_leaf_to_tree(children, parent, 19)
+                else:
+                    self._handle_missing_token(']', 19)
+        return self._make_tree(parent, children)
 
     def fun_declaration_prime(self):
         pass
@@ -270,6 +348,22 @@ class Parser:
     def _is_in_follow_set(self, non_term):
         return self.lookahead[0] in follow_dictionary(non_term)
 
+    def _get_leaf_node(self, parent):
+        return Node(str((self.lookahead[0], self.lookahead[1])), parent)
 
+    def _handle_missing_non_term(self, non_term: str):
+        # TODO: write error
+        pass
 
+    def _handle_invalid_input(self):
+        # TODO: write invalid input
+        self._move_lookahead()
 
+    def _handle_missing_token(self, missed, next_state):
+        # TODO: handle missing token
+        self.current_node = next_state
+
+    def _add_leaf_to_tree(self, children, parent, next):
+        children.append(self._get_leaf_node(parent))
+        self._move_lookahead()
+        self.current_node = next
