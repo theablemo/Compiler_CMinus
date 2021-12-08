@@ -176,8 +176,11 @@ class Parser:
                     self._add_leaf_to_tree(children, parent, 15)
                 elif self.lookahead[0] == ';':
                     self._add_leaf_to_tree(children, parent, 19)
+                elif self._is_in_follow_set(NonTerminal.VAR_DECLARATION_PRIME):
+                    self._handle_missing_non_term(NonTerminal.VAR_DECLARATION_PRIME.value)
+                    return None
                 else:
-                    # which edge ??!
+                    # TODO: which edge ??!
                     self._handle_missing_token('[', 15)
             elif self.current_node == 15:
                 self._move_terminal_edge(children, parent, TokenType.NUM, 17)
@@ -193,7 +196,14 @@ class Parser:
         children = []
         while self.current_node != 24:
             if self.current_node == 20:
-                self._move_terminal_edge(children, parent, '(', 21)
+                if self.lookahead[0] == '(':
+                    self._add_leaf_to_tree(children, parent, 21)
+                elif self._is_in_follow_set(NonTerminal.FUN_DECLARATION_PRIME):
+                    self._handle_missing_non_term(NonTerminal.FUN_DECLARATION_PRIME.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.fun_declaration_prime()
             elif self.current_node == 21:
                 self.current_node = 27
                 children.append(self.params())
@@ -215,6 +225,12 @@ class Parser:
                     self._add_leaf_to_tree(children, parent, 26)
                 elif self.lookahead[0] == 'void':
                     self._add_leaf_to_tree(children, parent, 26)
+                if self._is_in_follow_set(NonTerminal.TYPE_SPECIFIER):
+                    self._handle_missing_non_term(NonTerminal.TYPE_SPECIFIER.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.type_specifier()
 
     def params(self):
         parent = Node(NonTerminal.PARAMS.value)
@@ -225,6 +241,12 @@ class Parser:
                     self._add_leaf_to_tree(children, parent, 28)
                 elif self.lookahead[0] == 'void':
                     self._add_leaf_to_tree(children, parent, 31)
+                elif self._is_in_follow_set(NonTerminal.PARAMS):
+                    self._handle_missing_non_term(NonTerminal.PARAMS.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.params()
             elif self.current_node == 28:
                 self._move_terminal_edge(children, parent, TokenType.ID, 29)
             elif self.current_node == 29:
@@ -244,9 +266,12 @@ class Parser:
             if self.current_node == 32:
                 if self.lookahead[0] == ',':
                     self._add_leaf_to_tree(children, parent, 33)
-                if self._is_epsilon_move_valid(NonTerminal.PARAM_LIST):
+                elif self._is_epsilon_move_valid(NonTerminal.PARAM_LIST):
                     return None
-                if not self._is_in_follow_set(NonTerminal.PARAM_LIST):
+                elif self._is_in_follow_set(NonTerminal.PARAM_LIST):
+                    self._handle_missing_non_term(NonTerminal.PARAMS.value)
+                    return None
+                else:
                     self._handle_invalid_input()
                     return self.param_list()
             elif self.current_node == 33:
