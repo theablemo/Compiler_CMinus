@@ -144,10 +144,7 @@ class Parser:
                     self._handle_invalid_input()
                     return self.declaration_initial()
             if self.current_node == 10:
-                if self.lookahead[1] is TokenType.ID:
-                    self._add_leaf_to_tree(children, parent, 11)
-                else:
-                    self._handle_missing_token("ID", 11)
+                self._move_terminal_edge(children, parent, TokenType.ID, 11)
         return self._make_tree(parent, children)
 
     def declaration_prime(self):
@@ -183,36 +180,105 @@ class Parser:
                     # which edge ??!
                     self._handle_missing_token('[', 15)
             elif self.current_node == 15:
-                if self.lookahead[1] is TokenType.NUM:
-                    self._add_leaf_to_tree(children, parent, 17)
-                else:
-                    self._handle_missing_token('NUM', 17)
+                self._move_terminal_edge(children, parent, TokenType.NUM, 17)
             elif self.current_node == 17:
-                if self.lookahead[0] == ']':
-                    self._add_leaf_to_tree(children, parent, 18)
-                else:
-                    self._handle_missing_token(']', 18)
+                self._move_terminal_edge(children, parent, ']', 18)
             elif self.current_node == 18:
                 if self.lookahead[0] == ';':
-                    self._add_leaf_to_tree(children, parent, 19)
-                else:
-                    self._handle_missing_token(']', 19)
+                    self._move_terminal_edge(children, parent, ';', 19)
         return self._make_tree(parent, children)
 
     def fun_declaration_prime(self):
-        pass
+        parent = Node(NonTerminal.FUN_DECLARATION_PRIME.value)
+        children = []
+        while self.current_node != 24:
+            if self.current_node == 20:
+                self._move_terminal_edge(children, parent, '(', 21)
+            elif self.current_node == 21:
+                self.current_node = 27
+                children.append(self.params())
+                self.current_node = 22
+            elif self.current_node == 22:
+                self._move_terminal_edge(children, parent, ')', 23)
+            elif self.current_node == 23:
+                self.current_node = 42
+                children.append(self.compound_stmt())
+                self.current_node = 24
+        return self._make_tree(parent, children)
 
     def type_specifier(self):
-        pass
+        parent = Node(NonTerminal.TYPE_SPECIFIER.value)
+        children = []
+        while self.current_node != 26:
+            if self.current_node == 25:
+                if self.lookahead[0] == 'int':
+                    self._add_leaf_to_tree(children, parent, 26)
+                elif self.lookahead[0] == 'void':
+                    self._add_leaf_to_tree(children, parent, 26)
 
     def params(self):
-        pass
+        parent = Node(NonTerminal.PARAMS.value)
+        children = []
+        while self.current_node != 31:
+            if self.current_node == 27:
+                if self.lookahead[0] == 'int':
+                    self._add_leaf_to_tree(children, parent, 28)
+                elif self.lookahead[0] == 'void':
+                    self._add_leaf_to_tree(children, parent, 31)
+            elif self.current_node == 28:
+                self._move_terminal_edge(children, parent, TokenType.ID, 29)
+            elif self.current_node == 29:
+                self.current_node = 39
+                children.append(self.param_prime())
+                self.current_node = 30
+            elif self.current_node == 30:
+                self.current_node = 32
+                self.param_list()
+                self.current_node = 31
+        return self._make_tree(parent, children)
 
     def param_list(self):
-        pass
+        parent = Node(NonTerminal.PARAM_LIST.value)
+        children = []
+        while self.current_node != 35:
+            if self.current_node == 32:
+                if self.lookahead[0] == ',':
+                    self._add_leaf_to_tree(children, parent, 33)
+                if self._is_epsilon_move_valid(NonTerminal.PARAM_LIST):
+                    return None
+                if not self._is_in_follow_set(NonTerminal.PARAM_LIST):
+                    self._handle_invalid_input()
+                    return self.param_list()
+            elif self.current_node == 33:
+                self.current_node = 36
+                children.append(self.param())
+                self.current_node = 34
+            elif self.current_node == 34:
+                self.current_node = 32
+                children.append(self.param_list())
+                self.current_node = 35
+        return self._make_tree(parent, children)
 
     def param(self):
-        pass
+        parent = Node(NonTerminal.PARAM.value)
+        children = []
+        while self.current_node != 38:
+            if self.current_node == 36:
+                if self._is_nt_edge_valid(NonTerminal.DECLARATION_INITIAL):
+                    self.current_node = 9
+                    children.append(self.declaration_initial())
+                    self.current_node = 37
+                if self._is_in_follow_set(NonTerminal.DECLARATION_INITIAL):
+                    self._handle_missing_non_term(NonTerminal.PARAM.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.param()
+            elif self.current_node == 37:
+                self.current_node = 39
+                children.append(self.param_prime())
+                self.current_node = 38
+        return self._make_tree(parent, children)
 
     def param_prime(self):
         pass
@@ -367,3 +433,25 @@ class Parser:
         children.append(self._get_leaf_node(parent))
         self._move_lookahead()
         self.current_node = next
+
+    def _move_terminal_edge(self, children, parent, expected, next):
+        """
+        This method makes move on terminal edges. If there is a mismatch, it will handle the error
+        It also adds a leaf node to 'children list"
+        ATTENTION: TRY NOT TO USE THIS FUNCTION FOR INITIAL STATES.
+        :param children:
+        :param parent:
+        :param expected: the expected token (on the edge). It can be a string or a token TokenType(like: TokenType.ID)
+        :param next: the next state that we should go
+        :return:
+        """
+        if type(expected) == str:
+            if self.lookahead[0] == expected:
+                self._add_leaf_to_tree(children, parent, next)
+            else:
+                self._handle_missing_token(expected, next)
+        else:
+            if self.lookahead[1] is expected:
+                self._add_leaf_to_tree(children, parent, next)
+            else:
+                self._handle_missing_token(expected.value, next)
