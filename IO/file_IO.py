@@ -51,14 +51,19 @@ class ErrorType(Enum):
 
 #Writes error in the file after termination
 class LexicalErrorIO:
-    def __init__(self) -> None:
+    def __init__(self, active=True) -> None:
+        self.active = active
         if os.path.exists("lexical_errors.txt"):
             os.remove("lexical_errors.txt")
-        self.file = open("lexical_errors.txt","at")
+        if self.active:
+            self.file = open("lexical_errors.txt","at")
         self.written = False
         self.current_lineno = 0
+
     
     def write_error(self,lineno: int,lexeme: str,errorType: ErrorType):
+        if not self.active:
+            return
         if errorType == ErrorType.UNCLOSED_COMMENT and len(lexeme) > 7:
             lexeme = input_process.truncate_unclosed_comment(lexeme)
         if lineno != self.current_lineno:
@@ -72,6 +77,8 @@ class LexicalErrorIO:
         self.written = True
         
     def close_file(self):
+        if not self.active:
+            return
         if self.written == False:
             self.file.write('There is no lexical error.')
         else:
@@ -80,22 +87,28 @@ class LexicalErrorIO:
 
 #Writes symbols one at a time
 class SymbolTableIO:
-    def __init__(self) -> None:
+    def __init__(self, active=True) -> None:
         if os.path.exists("symbol_table.txt"):
             os.remove("symbol_table.txt")
-        self.file = open("symbol_table.txt", "wt")
-        self.file.write(input_process.write_keywords())
+        self.active = active
+        if self.active:
+            self.file = open("symbol_table.txt", "wt")
+            self.file.write(input_process.write_keywords())
+            self.file.close()
         self.entry_count = input_process.number_of_keywords()+ 1
-        self.file.close()
         self.identifiers = set()
+        self.active = active
 
     def write_identifier(self, lexeme: str):
+        if not self.active:
+            return
         if lexeme not in self.identifiers:
             self.identifiers.add(lexeme)
             self.file = open("symbol_table.txt", "at")
             self.file.write(str(self.entry_count) + '.' + chr(9) + lexeme + chr(10))
             self.entry_count += 1
             self.file.close()
+
 
 
 class TokenType(Enum):
@@ -107,12 +120,15 @@ class TokenType(Enum):
 
 #Writes tokens one at a time
 class TokenIO:
-    def __init__(self) -> None:
+    def __init__(self, active=True) -> None:
         if os.path.exists("tokens.txt"):
             os.remove("tokens.txt")
         self.current_lineno = 1
         self.has_written = False
+        self.active = active
     def write_token(self, lineno: int, lexeme: str, token_type: TokenType):
+        if not self.active:
+            return
         file = open("tokens.txt" , "at")
         if not self.has_written:
             file.write(str(lineno) + '.' + chr(9))
