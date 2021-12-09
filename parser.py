@@ -551,37 +551,261 @@ class Parser:
         return self._make_tree(parent, children)
 
     def expression(self):
-        pass
+        parent = Node(NonTerminal.EXPRESSION.value)
+        children = []
+        while self.current_node != 82:
+            if self.current_node == 80:
+                if self._is_nt_edge_valid(NonTerminal.SIMPLE_EXPRESSION_ZEGOND):
+                    self.current_node = 94
+                    children.append(self.simple_expression_zegond())
+                    self.current_node = 82
+                elif self.lookahead[1] is TokenType.ID:
+                    self._add_leaf_to_tree(children, parent, 81)
+                elif self._is_in_follow_set(NonTerminal.EXPRESSION):
+                    self._handle_missing_non_term(NonTerminal.EXPRESSION.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.expression()
+            elif self.current_node == 81:
+                self.current_node = 83
+                children.append(self.b())
+                self.current_node = 82
+        return self._make_tree(parent, children)
 
     def b(self):
-        pass
+        parent = Node(NonTerminal.B.value)
+        children = []
+        while self.current_node != 88:
+            if self.current_node == 83:
+                if self._is_nt_edge_valid(NonTerminal.SIMPLE_EXPRESSION_PRIME):
+                    self.current_node = 97
+                    children.append(self.simple_expression_prime())
+                    self.current_node = 88
+                elif self.lookahead[0] == '[':
+                    self._add_leaf_to_tree(children, parent, 84)
+                elif self.lookahead[0] == '=':
+                    self._add_leaf_to_tree(children, parent, 87)
+                elif self._is_in_follow_set(NonTerminal.B):
+                    self._handle_missing_non_term(NonTerminal.B.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.b()
+            elif self.current_node == 87:
+                self.current_node = 80
+                children.append(self.expression())
+                self.current_node = 88
+            elif self.current_node == 84:
+                self.current_node = 80
+                children.append(self.expression())
+                self.current_node = 85
+            elif self.current_node == 85:
+                self._move_terminal_edge(children, parent, ']', 86)
+            elif self.current_node == 86:
+                self.current_node = 89
+                children.append(self.h())
+                self.current_node = 88
+        return self._make_tree(parent, children)
 
     def h(self):
-        pass
+        parent = Node(NonTerminal.H.value)
+        children = []
+        while self.current_node != 93:
+            if self.current_node == 89:
+                if self.lookahead[0] == '=':
+                    self._add_leaf_to_tree(children, parent, 92)
+                elif self._is_nt_edge_valid(NonTerminal.G):
+                    self.current_node = 129
+                    children.append(self.g())
+                    self.current_node = 90
+                elif self._is_in_follow_set(NonTerminal.H):
+                    self._handle_missing_non_term(NonTerminal.H.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.h()
+            elif self.current_node == 92:
+                self.current_node = 80
+                children.append(self.expression())
+                self.current_node = 93
+            elif self.current_node == 90:
+                self.current_node = 114
+                children.append(self.d())
+                self.current_node = 91
+            elif self.current_node == 91:
+                self.current_node = 100
+                children.append(self.c())
+                self.current_node = 93
+        return self._make_tree(parent, children)
 
     def simple_expression_zegond(self):
-        pass
+        parent = Node(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND.value)
+        children = []
+        while self.current_node != 96:
+            if self.current_node == 94:
+                if self._is_nt_edge_valid(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND):
+                    self.current_node = 111
+                    children.append(self.additive_expression_zegond())
+                    self.current_node = 95
+                elif self._is_in_follow_set(NonTerminal.SIMPLE_EXPRESSION_ZEGOND):
+                    self._handle_missing_non_term(NonTerminal.SIMPLE_EXPRESSION_ZEGOND.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.simple_expression_zegond()
+            elif self.current_node == 95:
+                self.current_node = 100
+                children.append(self.c())
+                self.current_node = 96
+        return self._make_tree(parent, children)
 
     def simple_expression_prime(self):
-        pass
+        parent = Node(NonTerminal.ADDITIVE_EXPRESSION_PRIME.value)
+        children = []
+        while self.current_node != 99:
+            if self.current_node == 97:
+                if self._is_nt_edge_valid(NonTerminal.ADDITIVE_EXPRESSION_PRIME):
+                    self.current_node = 108
+                    children.append(self.additive_expression_prime())
+                    self.current_node = 98
+                elif self._is_in_follow_set(NonTerminal.SIMPLE_EXPRESSION_PRIME):
+                    self._handle_missing_non_term(NonTerminal.SIMPLE_EXPRESSION_PRIME.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.simple_expression_prime()
+            elif self.current_node == 98:
+                self.current_node = 100
+                children.append(self.c())
+                self.current_node = 99
+        return self._make_tree(parent, children)
 
     def c(self):
-        pass
+        parent = Node(NonTerminal.C.value)
+        children = []
+        while self.current_node != 102:
+            if self.current_node == 100:
+                if self._is_nt_edge_valid(NonTerminal.RELOP):
+                    self.current_node = 103
+                    children.append(self.relop())
+                    self.current_node = 101
+                elif self._is_epsilon_move_valid(NonTerminal.C):
+                    return None
+                elif self._is_in_follow_set(NonTerminal.C):
+                    self._handle_missing_non_term(NonTerminal.C.value)
+                else:
+                    self._handle_invalid_input()
+                    return self.c()
+            elif self.current_node == 101:
+                self.current_node = 105
+                children.append(self.additive_expression())
+                self.current_node = 102
+        return self._make_tree(parent, children)
 
     def relop(self):
-        pass
+        parent = Node(NonTerminal.RELOP.value)
+        children = []
+        while self.current_node != 104:
+            if self.current_node == 103:
+                if self.lookahead[0] == '<':
+                    self._add_leaf_to_tree(children, parent, 104)
+                elif self.lookahead[0] == '==':
+                    self._add_leaf_to_tree(children, parent, 104)
+                elif self._is_in_follow_set(NonTerminal.RELOP):
+                    self._handle_missing_non_term(NonTerminal.RELOP.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.relop()
+        return self._make_tree(parent, children)
 
     def additive_expression(self):
-        pass
+        parent = Node(NonTerminal.ADDITIVE_EXPRESSION.value)
+        children = []
+        while self.current_node != 107:
+            if self.current_node == 105:
+                if self._is_nt_edge_valid(NonTerminal.TERM):
+                    self.current_node = 120
+                    children.append(self.term())
+                    self.current_node = 106
+                elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION):
+                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.additive_expression()
+            elif self.current_node == 106:
+                self.current_node = 114
+                children.append(self.d())
+                self.current_node = 107
+        return self._make_tree(parent, children)
 
     def additive_expression_prime(self):
-        pass
+        parent = Node(NonTerminal.ADDITIVE_EXPRESSION_PRIME.value)
+        children = []
+        while self.current_node != 110:
+            if self.current_node == 108:
+                if self._is_nt_edge_valid(NonTerminal.TERM_PRIME):
+                    self.current_node = 123
+                    children.append(self.term_prime())
+                    self.current_node = 109
+                elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION_PRIME):
+                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION_PRIME.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.additive_expression_prime()
+            elif self.current_node == 109:
+                self.current_node = 114
+                children.append(self.d())
+                self.current_node = 110
+        return self._make_tree(parent, children)
 
     def additive_expression_zegond(self):
-        pass
+        parent = Node(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND.value)
+        children = []
+        while self.current_node != 113:
+            if self.current_node == 111:
+                if self._is_nt_edge_valid(NonTerminal.TERM_ZEGOND):
+                    self.current_node = 126
+                    children.append(self.term_zegond())
+                    self.current_node = 112
+                elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND):
+                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.additive_expression_zegond()
+            elif self.current_node == 112:
+                self.current_node = 114
+                children.append(self.d())
+                self.current_node = 113
+        return self._make_tree(parent, children)
 
     def d(self):
-        pass
+        parent = Node(NonTerminal.D.value)
+        children = []
+        while self.current_node != 117:
+            if self.current_node == 114:
+                if self._is_nt_edge_valid(NonTerminal.ADDOP):
+                    self.current_node = 118
+                    children.append(self.addop())
+                    self.current_node = 115
+                elif self._is_epsilon_move_valid(NonTerminal.D):
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.d()
+            elif self.current_node == 115:
+                self.current_node = 120
+                children.append(self.term())
+                self.current_node = 116
+            elif self.current_node == 116:
+                self.current_node = 114
+                children.append(self.d())
+                self.current_node = 117
+        return self._make_tree(parent, children)
 
     def addop(self):
         pass
