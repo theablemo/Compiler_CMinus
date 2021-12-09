@@ -306,16 +306,104 @@ class Parser:
         return self._make_tree(parent, children)
 
     def param_prime(self):
-        pass
+        parent = Node(NonTerminal.PARAM_PRIME.value)
+        children = []
+        while self.current_node != 41:
+            if self.current_node == 39:
+                if self.lookahead[0] == '[':
+                    self._add_leaf_to_tree(children, parent, 40)
+                elif self._is_epsilon_move_valid(NonTerminal.PARAM_PRIME):
+                    return None
+                elif self._is_in_follow_set(NonTerminal.PARAM_PRIME):
+                    self._handle_missing_non_term(NonTerminal.PARAM_PRIME.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.param_prime()
+            elif self.current_node == 40:
+                self._move_terminal_edge(children, parent, ']', 41)
+        return self._make_tree(parent, children)
 
     def compound_stmt(self):
-        pass
+        parent = Node(NonTerminal.COMPOUND_STMT.value)
+        children = []
+        while self.current_node != 46:
+            if self.current_node == 42:
+                if self.lookahead[0] == '{':
+                    self._add_leaf_to_tree(children, parent, 43)
+                elif self._is_in_follow_set(NonTerminal.COMPOUND_STMT):
+                    self._handle_missing_non_term(NonTerminal.COMPOUND_STMT.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.compound_stmt()
+            elif self.current_node == 43:
+                self.current_node = 3
+                children.append(self.declaration_list())
+                self.current_node = 44
+            elif self.current_node == 44:
+                self.current_node = 47
+                children.append(self.statement_list())
+                self.current_node = 45
+            elif self.current_node == 45:
+                self._move_terminal_edge(children, parent, '}', 46)
+        return self._make_tree(parent, children)
 
     def statement_list(self):
-        pass
+        parent = Node(NonTerminal.STATEMENT_LIST.value)
+        children = []
+        while self.current_node != 49:
+            if self.current_node == 47:
+                if self._is_nt_edge_valid(NonTerminal.STATEMENT):
+                    self.current_node = 50
+                    children.append(self.statement())
+                    self.current_node = 48
+                elif self._is_epsilon_move_valid(NonTerminal.STATEMENT_LIST):
+                    return None
+                elif self._is_in_follow_set(NonTerminal.STATEMENT_LIST):
+                    self._handle_missing_non_term(NonTerminal.STATEMENT_LIST.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.statement_list()
+            elif self.current_node == 48:
+                self.current_node = 47
+                children.append(self.statement_list())
+                self.current_node = 49
+        return self._make_tree(parent, children)
 
     def statement(self):
-        pass
+        parent = Node(NonTerminal.STATEMENT.value)
+        children = []
+        while self.current_node != 51:
+            if self.current_node == 50:
+                if self._is_nt_edge_valid(NonTerminal.EXPRESSION_STMT):
+                    self.current_node = 52
+                    children.append(self.expression_stmt())
+                    self.current_node = 51
+                elif self._is_nt_edge_valid(NonTerminal.COMPOUND_STMT):
+                    self.current_node = 42
+                    children.append(self.compound_stmt())
+                    self.current_node = 51
+                elif self._is_nt_edge_valid(NonTerminal.SELECTION_STMT):
+                    self.current_node = 56
+                    children.append(self.selection_stmt())
+                    self.current_node = 51
+                elif self._is_nt_edge_valid(NonTerminal.ITERATION_STMT):
+                    self.current_node = 67
+                    children.append(self.iteration_stmt())
+                    self.current_node = 51
+                elif self._is_nt_edge_valid(NonTerminal.RETURN_STMT):
+                    self.current_node = 74
+                    children.append(self.return_stmt())
+                    self.current_node = 51
+                elif self._is_in_follow_set(NonTerminal.STATEMENT):
+                    self._handle_missing_non_term(NonTerminal.STATEMENT.value)
+                    return None
+                else:
+                    self._handle_invalid_input()
+                    return self.statement()
+        return self._make_tree(parent, children)
 
     def expression_stmt(self):
         pass
