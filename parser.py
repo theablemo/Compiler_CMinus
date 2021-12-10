@@ -43,6 +43,7 @@ class Link:
 class Parser:
     def __init__(self, scanner) -> None:
         #terminate no syntax error
+        self.unexpected_eof_flag = False
         self.nodes = {}
         self.current_node = 0
         self.scanner = scanner
@@ -73,11 +74,14 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.PROGRAM):
                     self._handle_missing_non_term(NonTerminal.PROGRAM)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.program()
             elif self.current_node == 1:
-                if self.lookahead[1] is TokenType.END:
+                if self.lookahead[1] is TokenType.END and not self.unexpected_eof_flag:
                     self._add_leaf_to_tree(children, parent, 2, end=True)
                 else:
                     self._handle_missing_token("$", 2)
@@ -88,16 +92,19 @@ class Parser:
         parent = Node(NonTerminal.DECLARATION_LIST.value)
         while self.current_node != 5:
             if self.current_node == 3:
-                if self._is_nt_edge_valid(NonTerminal.DECLARATION):
+                if self._is_nt_edge_valid(NonTerminal.DECLARATION) and not self.unexpected_eof_flag:
                     self.current_node = 6
                     children.append(self.declaration())
                     self.current_node = 4
-                elif self._is_epsilon_move_valid(NonTerminal.DECLARATION_LIST):
+                elif self._is_epsilon_move_valid(NonTerminal.DECLARATION_LIST) and not self.unexpected_eof_flag:
                     children.append(Node('epsilon'))
                     break
                 elif self._is_in_follow_set(NonTerminal.DECLARATION_LIST):
                     self._handle_missing_non_term(NonTerminal.DECLARATION_LIST)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.declaration_list()
@@ -112,13 +119,16 @@ class Parser:
         children = []
         while self.current_node != 8:
             if self.current_node == 6:
-                if self._is_nt_edge_valid(NonTerminal.DECLARATION_INITIAL):
+                if self._is_nt_edge_valid(NonTerminal.DECLARATION_INITIAL) and not self.unexpected_eof_flag:
                     self.current_node = 9
                     children.append(self.declaration_initial())
                     self.current_node = 7
                 elif self._is_in_follow_set(NonTerminal.DECLARATION):
                     self._handle_missing_non_term(NonTerminal.DECLARATION)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.declaration()
@@ -140,6 +150,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.DECLARATION):
                     self._handle_missing_non_term(NonTerminal.DECLARATION_INITIAL)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.declaration_initial()
@@ -152,7 +165,7 @@ class Parser:
         children = []
         while self.current_node != 13:
             if self.current_node == 12:
-                if self._is_nt_edge_valid(NonTerminal.FUN_DECLARATION_PRIME):
+                if self._is_nt_edge_valid(NonTerminal.FUN_DECLARATION_PRIME) and not self.unexpected_eof_flag:
                     self.current_node = 20
                     children.append(self.fun_declaration_prime())
                     self.current_node = 13
@@ -163,6 +176,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.DECLARATION_PRIME):
                     self._handle_missing_non_term(NonTerminal.DECLARATION_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.declaration_prime()
@@ -180,6 +196,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.VAR_DECLARATION_PRIME):
                     self._handle_missing_non_term(NonTerminal.VAR_DECLARATION_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     # TODO: which edge ??!
                     self._handle_invalid_input()
@@ -203,6 +222,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.FUN_DECLARATION_PRIME):
                     self._handle_missing_non_term(NonTerminal.FUN_DECLARATION_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.fun_declaration_prime()
@@ -230,6 +252,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.TYPE_SPECIFIER):
                     self._handle_missing_non_term(NonTerminal.TYPE_SPECIFIER)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.type_specifier()
@@ -247,6 +272,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.PARAMS):
                     self._handle_missing_non_term(NonTerminal.PARAMS)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.params()
@@ -305,6 +333,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.DECLARATION_INITIAL):
                     self._handle_missing_non_term(NonTerminal.PARAM)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.param()
@@ -327,6 +358,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.PARAM_PRIME):
                     self._handle_missing_non_term(NonTerminal.PARAM_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.param_prime()
@@ -344,6 +378,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.COMPOUND_STMT):
                     self._handle_missing_non_term(NonTerminal.COMPOUND_STMT)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.compound_stmt()
@@ -374,6 +411,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.STATEMENT_LIST):
                     self._handle_missing_non_term(NonTerminal.STATEMENT_LIST)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.statement_list()
@@ -411,6 +451,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.STATEMENT):
                     self._handle_missing_non_term(NonTerminal.STATEMENT)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.statement()
@@ -432,6 +475,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.EXPRESSION_STMT):
                     self._handle_missing_non_term(NonTerminal.EXPRESSION_STMT)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.expression_stmt()
@@ -451,6 +497,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.SELECTION_STMT):
                     self._handle_missing_non_term(NonTerminal.SELECTION_STMT)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.selection_stmt()
@@ -484,6 +533,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.ELSE_STMT):
                     self._handle_missing_non_term(NonTerminal.ELSE_STMT)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.else_stmt()
@@ -505,6 +557,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.ITERATION_STMT):
                     self._handle_missing_non_term(NonTerminal.ITERATION_STMT)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.iteration_stmt()
@@ -534,7 +589,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.RETURN_STMT):
                     self._handle_missing_non_term(NonTerminal.RETURN_STMT)
                     return None
-                
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.return_stmt()
@@ -558,6 +615,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.RETURN_STMT_PRIME):
                     self._handle_missing_non_term(NonTerminal.RETURN_STMT_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.return_stmt_prime()
@@ -579,6 +639,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.EXPRESSION):
                     self._handle_missing_non_term(NonTerminal.EXPRESSION)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.expression()
@@ -604,6 +667,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.B):
                     self._handle_missing_non_term(NonTerminal.B)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.b()
@@ -637,6 +703,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.H):
                     self._handle_missing_non_term(NonTerminal.H)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.h()
@@ -666,6 +735,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.SIMPLE_EXPRESSION_ZEGOND):
                     self._handle_missing_non_term(NonTerminal.SIMPLE_EXPRESSION_ZEGOND)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.simple_expression_zegond()
@@ -687,6 +759,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.SIMPLE_EXPRESSION_PRIME):
                     self._handle_missing_non_term(NonTerminal.SIMPLE_EXPRESSION_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.simple_expression_prime()
@@ -711,6 +786,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.C):
                     self._handle_missing_non_term(NonTerminal.C)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.c()
@@ -732,6 +810,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.RELOP):
                     self._handle_missing_non_term(NonTerminal.RELOP)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.relop()
@@ -749,6 +830,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION):
                     self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.additive_expression()
@@ -770,6 +854,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION_PRIME):
                     self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.additive_expression_prime()
@@ -791,6 +878,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND):
                     self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.additive_expression_zegond()
@@ -815,6 +905,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.D):
                     self._handle_missing_non_term(NonTerminal.D)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.d()
@@ -840,6 +933,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.ADDOP):
                     self._handle_missing_non_term(NonTerminal.ADDOP)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.addop()
@@ -857,6 +953,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.TERM):
                     self._handle_missing_non_term(NonTerminal.TERM)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.term()
@@ -878,6 +977,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.TERM_PRIME):
                     self._handle_missing_non_term(NonTerminal.TERM_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.term_prime()
@@ -899,6 +1001,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.TERM_ZEGOND):
                     self._handle_missing_non_term(NonTerminal.TERM_ZEGOND)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.term_zegond()
@@ -921,6 +1026,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.G):
                     self._handle_missing_non_term(NonTerminal.G)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.g()
@@ -948,6 +1056,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.FACTOR):
                     self._handle_missing_non_term(NonTerminal.FACTOR)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.factor()
@@ -977,6 +1088,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.VAR_CALL_PRIME):
                     self._handle_missing_non_term(NonTerminal.VAR_CALL_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.var_call_prime()
@@ -1001,6 +1115,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.VAR_PRIME):
                     self._handle_missing_non_term(NonTerminal.VAR_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.var_prime()
@@ -1025,6 +1142,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.FACTOR_PRIME):
                     self._handle_missing_non_term(NonTerminal.FACTOR_PRIME)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.factor_prime()
@@ -1048,6 +1168,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.FACTOR_ZEGOND):
                     self._handle_missing_non_term(NonTerminal.FACTOR_ZEGOND)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.factor_zegond()
@@ -1074,6 +1197,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.ARGS):
                     self._handle_missing_non_term(NonTerminal.ARGS)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.args()
@@ -1091,6 +1217,9 @@ class Parser:
                 elif self._is_in_follow_set(NonTerminal.ARG_LIST):
                     self._handle_missing_non_term(NonTerminal.ARG_LIST)
                     return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     self._handle_invalid_input()
                     return self.arg_list()
@@ -1112,6 +1241,10 @@ class Parser:
                     break
                 elif self._is_in_follow_set(NonTerminal.ARG_LIST_PRIME):
                     self._handle_missing_non_term(NonTerminal.ARG_LIST_PRIME)
+                    return None
+                elif self.lookahead[1] is TokenType.END:
+                    self._handle_unexpected_eof()
+                    break
                 else:
                     if self.lookahead[1] is TokenType.END:
                         return None
@@ -1183,6 +1316,7 @@ class Parser:
         self.current_node = next_state
     
     def _handle_unexpected_eof(self):
+        self.unexpected_eof_flag = True
         #TODO: print
         pass
 
