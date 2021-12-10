@@ -115,6 +115,8 @@ class Parser:
         parent = Node(NonTerminal.DECLARATION.value)
         children = []
         while self.current_node != 8:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 6:
                 if self._is_nt_edge_valid(NonTerminal.DECLARATION_INITIAL):
                     self.current_node = 9
@@ -136,6 +138,8 @@ class Parser:
         parent = Node(NonTerminal.DECLARATION_INITIAL.value)
         children = []
         while self.current_node != 11:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 9:
                 if self._is_nt_edge_valid(NonTerminal.TYPE_SPECIFIER):
                     self.current_node = 25
@@ -155,6 +159,8 @@ class Parser:
         parent = Node(NonTerminal.DECLARATION_PRIME.value)
         children = []
         while self.current_node != 13:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 12:
                 if self._is_nt_edge_valid(NonTerminal.FUN_DECLARATION_PRIME):
                     self.current_node = 20
@@ -176,6 +182,8 @@ class Parser:
         parent = Node(NonTerminal.VAR_DECLARATION_PRIME.value)
         children = []
         while self.current_node != 19:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 14:
                 if self.lookahead[0] == '[':
                     self._add_leaf_to_tree(children, parent, 15)
@@ -201,6 +209,8 @@ class Parser:
         parent = Node(NonTerminal.FUN_DECLARATION_PRIME.value)
         children = []
         while self.current_node != 24:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 20:
                 if self.lookahead[0] == '(':
                     self._add_leaf_to_tree(children, parent, 21)
@@ -226,6 +236,8 @@ class Parser:
         parent = Node(NonTerminal.TYPE_SPECIFIER.value)
         children = []
         while self.current_node != 26:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 25:
                 if self.lookahead[0] == 'int':
                     self._add_leaf_to_tree(children, parent, 26)
@@ -243,6 +255,8 @@ class Parser:
         parent = Node(NonTerminal.PARAMS.value)
         children = []
         while self.current_node != 31:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 27:
                 if self.lookahead[0] == 'int':
                     self._add_leaf_to_tree(children, parent, 28)
@@ -272,6 +286,8 @@ class Parser:
         while self.current_node != 35:
             if self.lookahead[1] is TokenType.END:
                 break
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 32:
                 if self.lookahead[0] == ',':
                     self._add_leaf_to_tree(children, parent, 33)
@@ -298,6 +314,8 @@ class Parser:
         parent = Node(NonTerminal.PARAM.value)
         children = []
         while self.current_node != 38:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 36:
                 if self._is_nt_edge_valid(NonTerminal.DECLARATION_INITIAL):
                     self.current_node = 9
@@ -341,6 +359,8 @@ class Parser:
         parent = Node(NonTerminal.COMPOUND_STMT.value)
         children = []
         while self.current_node != 46:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 42:
                 if self.lookahead[0] == '{':
                     self._add_leaf_to_tree(children, parent, 43)
@@ -366,6 +386,8 @@ class Parser:
         parent = Node(NonTerminal.STATEMENT_LIST.value)
         children = []
         while self.current_node != 49:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 47:
                 if self._is_nt_edge_valid(NonTerminal.STATEMENT):
                     self.current_node = 50
@@ -390,6 +412,8 @@ class Parser:
         parent = Node(NonTerminal.STATEMENT.value)
         children = []
         while self.current_node != 51:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 50:
                 if self._is_nt_edge_valid(NonTerminal.EXPRESSION_STMT):
                     self.current_node = 52
@@ -423,6 +447,8 @@ class Parser:
         parent = Node(NonTerminal.EXPRESSION_STMT.value)
         children = []
         while self.current_node != 55:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 52:
                 if self._is_nt_edge_valid(NonTerminal.EXPRESSION):
                     self.current_node = 80
@@ -448,6 +474,8 @@ class Parser:
         parent = Node(NonTerminal.SELECTION_STMT.value)
         children = []
         while self.current_node != 62:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 56:
                 if self.lookahead[0] == 'if':
                     self._add_leaf_to_tree(children, parent, 57)
@@ -479,6 +507,8 @@ class Parser:
         parent = Node(NonTerminal.ELSE_STMT.value)
         children = []
         while self.current_node != 66:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 63:
                 if self.lookahead[0] == 'else':
                     self._add_leaf_to_tree(children, parent, 64)
@@ -502,6 +532,8 @@ class Parser:
         parent = Node(NonTerminal.ITERATION_STMT.value)
         children = []
         while self.current_node != 73:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 67:
                 if self.lookahead[0] == 'repeat':
                     self._add_leaf_to_tree(children, parent, 68)
@@ -531,6 +563,8 @@ class Parser:
         parent = Node(NonTerminal.RETURN_STMT.value)
         children = []
         while self.current_node != 76:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 74:
                 if self.lookahead[0] == 'return':
                     self._add_leaf_to_tree(children, parent, 75)
@@ -550,6 +584,8 @@ class Parser:
         parent = Node(NonTerminal.RETURN_STMT_PRIME.value)
         children = []
         while self.current_node != 79:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 77:
                 if self._is_nt_edge_valid(NonTerminal.EXPRESSION):
                     self.current_node = 80
@@ -571,6 +607,8 @@ class Parser:
         parent = Node(NonTerminal.EXPRESSION.value)
         children = []
         while self.current_node != 82:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 80:
                 if self._is_nt_edge_valid(NonTerminal.SIMPLE_EXPRESSION_ZEGOND):
                     self.current_node = 94
@@ -594,6 +632,8 @@ class Parser:
         parent = Node(NonTerminal.B.value)
         children = []
         while self.current_node != 88:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 83:
                 if self._is_nt_edge_valid(NonTerminal.SIMPLE_EXPRESSION_PRIME):
                     self.current_node = 97
