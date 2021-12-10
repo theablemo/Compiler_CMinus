@@ -1,9 +1,8 @@
 from enum import Enum, auto
-from anytree import Node
+from anytree import Node, RenderTree
 
 from IO.file_IO import TokenType
 from parser_sup.non_terminal import first_dictionary, follow_dictionary, NonTerminal
-
 
 #
 # class NonTerminal:
@@ -81,7 +80,7 @@ class Parser:
                     return self.program()
             elif self.current_node == 1:
                 if self.lookahead[1] is TokenType.END:
-                    self._add_leaf_to_tree(children, parent, 2)
+                    self._add_leaf_to_tree(children, parent, 2, end=True)
                 else:
                     self._handle_missing_token("$", 2)
         return self._make_tree(parent, children)
@@ -1115,10 +1114,9 @@ class Parser:
         """
         Return True if we can move with the 'non_term' edge
         """
-        token = self.lookahead[0]
-        if token in first_dictionary.get(non_term):
+        if self._is_in_first_set(non_term):
             return True
-        if '' in first_dictionary.get(non_term) and token in follow_dictionary.get(token):
+        if self._is_in_first_set(non_term, token='') and self._is_in_follow_set(non_term):
             return True
         return False
 
@@ -1135,16 +1133,23 @@ class Parser:
         return parent
 
     def _is_epsilon_move_valid(self, non_term):
-        return self.lookahead[0] in follow_dictionary.get(non_term)
+        return self._is_in_follow_set(non_term)
 
     def _move_lookahead(self):
         self.lookahead = self.scanner.get_next_token()
 
     def _is_in_follow_set(self, non_term):
-        return self.lookahead[0] in follow_dictionary(non_term)
+        return self.lookahead[0] in follow_dictionary.get(non_term) or \
+               self.lookahead[1].value in follow_dictionary.get(non_term)
+
+    def _is_in_first_set(self, non_term, token=None):
+        if token is not None:
+            return token in first_dictionary.get(non_term)
+        return self.lookahead[0] in first_dictionary.get(non_term) or \
+               self.lookahead[1].value in first_dictionary.get(non_term)
 
     def _get_leaf_node(self, parent):
-        return Node(f'({self.lookahead[1].value}, {self.lookahead[0]})', parent)
+        return Node(f'({self.lookahead[1].value}, {self.lookahead[0]})')
 
     def _handle_missing_non_term(self, non_term: str):
         # TODO: write error
@@ -1158,7 +1163,11 @@ class Parser:
         # TODO: handle missing token
         self.current_node = next_state
 
-    def _add_leaf_to_tree(self, children, parent, next):
+    def _add_leaf_to_tree(self, children, parent, next, end=False):
+        if end:
+            children.append(Node('$'))
+            self.current_node = next
+            return
         children.append(self._get_leaf_node(parent))
         self._move_lookahead()
         self.current_node = next
@@ -1187,4 +1196,6 @@ class Parser:
 
 
 a = Parser(Scanner())
-a.program()
+x = a.program()
+for pre, fill, node in RenderTree(x):
+    print("%s%s" % (pre, node.name))
