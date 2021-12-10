@@ -127,7 +127,7 @@ class Parser:
             elif self.current_node == 7:
                 self.current_node = 12
                 children.append(self.declaration_prime())
-                self.current_node = 9
+                self.current_node = 8
         return self._make_tree(parent, children)
 
     def declaration_initial(self):
@@ -235,6 +235,7 @@ class Parser:
                 else:
                     self._handle_invalid_input()
                     return self.type_specifier()
+        return self._make_tree(parent, children)
 
     def params(self):
         parent = Node(NonTerminal.PARAMS.value)
@@ -1143,7 +1144,7 @@ class Parser:
         return self.lookahead[0] in follow_dictionary(non_term)
 
     def _get_leaf_node(self, parent):
-        return Node(str((self.lookahead[0], self.lookahead[1])), parent)
+        return Node(f'({self.lookahead[1].value}, {self.lookahead[0]})', parent)
 
     def _handle_missing_non_term(self, non_term: str):
         # TODO: write error
@@ -1183,3 +1184,7 @@ class Parser:
                 self._add_leaf_to_tree(children, parent, next)
             else:
                 self._handle_missing_token(expected.value, next)
+
+
+a = Parser(Scanner())
+a.program()
