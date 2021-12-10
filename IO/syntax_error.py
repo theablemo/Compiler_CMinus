@@ -1,5 +1,4 @@
-from IO.file_IO import ErrorType
-from parser_sup import error_type
+from parser_sup.error_type import ParserErrorType
 from anytree import RenderTree
 import os
 
@@ -14,7 +13,7 @@ class SyntaxIO:
     def print_syntax_error(self, error_type, lexeme, lineno):
         self.syntax_error_found = True
         file = open(self.file_name, "at")
-        file.write('#' + lineno + ' : ' + 'syntax error, ' + error_type.value + ' ' + lexeme + '\n')
+        file.write('#' + str(lineno) + ' : ' + 'syntax error, ' + error_type.value + ' ' + lexeme + '\n')
         file.close()
     
 
@@ -23,6 +22,11 @@ class SyntaxIO:
             file = open(self.file_name, "at")
             file.write('There is no syntax error.')
             file.close()
+    
+    def print_unexpected_eof(self, lineno):
+        file = open(self.file_name, "at")
+        file.write('#' + str(lineno) + ' : ' + 'syntax error, Unexpected EOF' + '\n')
+        file.close()
     
 class TreeIO:
     def __init__(self, file_name = "parse_tree.txt") -> None:

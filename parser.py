@@ -2,9 +2,9 @@ from enum import Enum, auto
 from anytree import Node, RenderTree
 
 
-from parser_sup import error_type
+from parser_sup.error_type import ParserErrorType
 from IO.syntax_error import SyntaxIO, TreeIO
-from IO.file_IO import ErrorType, TokenType
+from IO.file_IO import TokenType
 from parser_sup.non_terminal import first_dictionary, follow_dictionary, NonTerminal
 
 
@@ -1268,21 +1268,22 @@ class Parser:
         return Node(f'({self.lookahead[1].value}, {self.lookahead[0]})')
 
     def _handle_invalid_input(self):
-        self.syntax_io.print_syntax_error(ErrorType.ILLEGAL, self.lookahead[0], self.lookahead[2])
+        self.syntax_io.print_syntax_error(ParserErrorType.ILLEGAL, self.lookahead[0], self.lookahead[2])
         self._move_lookahead()
 
     def _handle_missing_non_term(self, non_term):
-        self.syntax_io.print_syntax_error(ErrorType.MISSING, non_term.value, self.lookahead[2])
-        pass
+        if not self.unexpected_eof_flag:
+            self.syntax_io.print_syntax_error(ParserErrorType.MISSING, non_term.value, self.lookahead[2])
+        
 
     def _handle_missing_token(self, missed, next_state):
-        self.syntax_io.print_syntax_error(ErrorType.MISSING, missed, self.lookahead[2])
+        if not self.unexpected_eof_flag:
+            self.syntax_io.print_syntax_error(ParserErrorType.MISSING, missed, self.lookahead[2])
         self.current_node = next_state
     
     def _handle_unexpected_eof(self):
         self.unexpected_eof_flag = True
-        #TODO: print
-        pass
+        self.syntax_io.print_unexpected_eof(self.lookahead[2])
 
 
     def _add_leaf_to_tree(self, children, parent, next, end=False):

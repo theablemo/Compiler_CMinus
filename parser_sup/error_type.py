@@ -1,5 +1,5 @@
 from enum import Enum
-class ErrorType(Enum):
+class ParserErrorType(Enum):
     MISSING = 'missing'
     ILLEGAL = 'illegal'
     # NOT_IN_FOLLOW = auto()
