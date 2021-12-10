@@ -672,7 +672,7 @@ class Parser:
         return self._make_tree(parent, children)
 
     def simple_expression_prime(self):
-        parent = Node(NonTerminal.ADDITIVE_EXPRESSION_PRIME.value)
+        parent = Node(NonTerminal.SIMPLE_EXPRESSION_PRIME.value)
         children = []
         while self.current_node != 99:
             if self.current_node == 97:
