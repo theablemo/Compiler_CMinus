@@ -258,8 +258,6 @@ class Parser:
         parent = Node(NonTerminal.PARAM_LIST.value)
         children = []
         while self.current_node != 35:
-            if self.lookahead[1] is TokenType.END:
-                break
             if self.current_node == 32:
                 if self.lookahead[0] == ',':
                     self._add_leaf_to_tree(children, parent, 33)

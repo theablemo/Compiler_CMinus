@@ -5,11 +5,6 @@ from parser import Parser
 from scanner import Scanner
 
 scanner = Scanner()
-# while (True):
-#     token = scanner.get_next_token()
-#     if token[1] == TokenType.END:
-#         break
-#     scanner.write_token(token)
 
 parser = Parser(scanner)
 parser.run_parser()
