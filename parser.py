@@ -1268,13 +1268,15 @@ class Parser:
         return Node(f'({self.lookahead[1].value}, {self.lookahead[0]})')
 
     def _handle_invalid_input(self):
-        self.syntax_io.print_syntax_error(ParserErrorType.ILLEGAL, self.lookahead[0], self.lookahead[2])
+        if self.lookahead[1] is TokenType.NUM or self.lookahead[1] is TokenType.ID:
+            self.syntax_io.print_syntax_error(ParserErrorType.ILLEGAL, self.lookahead[1].value, self.lookahead[2])
+        else:
+            self.syntax_io.print_syntax_error(ParserErrorType.ILLEGAL, self.lookahead[0], self.lookahead[2])
         self._move_lookahead()
 
     def _handle_missing_non_term(self, non_term):
         if not self.unexpected_eof_flag:
             self.syntax_io.print_syntax_error(ParserErrorType.MISSING, non_term.value, self.lookahead[2])
-        
 
     def _handle_missing_token(self, missed, next_state):
         if not self.unexpected_eof_flag:
@@ -1282,9 +1284,9 @@ class Parser:
         self.current_node = next_state
     
     def _handle_unexpected_eof(self):
+        if not self.unexpected_eof_flag:
+            self.syntax_io.print_unexpected_eof(self.lookahead[2])
         self.unexpected_eof_flag = True
-        self.syntax_io.print_unexpected_eof(self.lookahead[2])
-
 
     def _add_leaf_to_tree(self, children, parent, next, end=False):
         if end:
