@@ -2,42 +2,10 @@ from enum import Enum, auto
 from anytree import Node, RenderTree
 
 
-# from parser_sup import error_type
-# from IO.syntax_error import SyntaxIO
+from parser_sup import error_type
+from IO.syntax_error import SyntaxIO, TreeIO
 from IO.file_IO import ErrorType, TokenType
 from parser_sup.non_terminal import first_dictionary, follow_dictionary, NonTerminal
-
-#
-# class NonTerminal:
-#     def __init__(self, name, first, follow) -> None:
-#         self.name = name
-#         self.first = first
-#         self.follow = follow
-from scanner import Scanner
-
-
-class Terminal:
-    def __init__(self, lexeme) -> None:
-        self.lexeme = lexeme
-
-
-class Link:
-    def __init__(self, parameter, father, child) -> None:
-        self.parameter = parameter
-        self.father = father
-        self.child = child
-
-    def is_terminal(self):
-        if isinstance(self.parameter, Terminal):
-            return True
-        return False
-
-
-# class Node:
-#     def __init__(self, father_NT, out_links, number) -> None:
-#         self.father_NT = father_NT
-#         self.out_links = out_links
-#         self.number = number
 
 
 class Parser:
@@ -48,19 +16,15 @@ class Parser:
         self.current_node = 0
         self.scanner = scanner
         self.lookahead= scanner.get_next_token()
-        # self.syntax_io = SyntaxIO()
-        pass
+        self.syntax_io = SyntaxIO()
+        self.tree_io = TreeIO()
+        
+    def run_parser(self):
+        root = self.program()
+        self.tree_io.print_tree(root)
+        if not self.syntax_io.syntax_error_found:
+            self.syntax_io.print_no_syntax_error()
 
-    def move(self, token):
-        node = self.nodes[self.current_node]
-        for link in node.out_links:
-            if link.is_terminal():
-                pass
-            else:
-                pass
-
-    def handle_error(self, error_type):
-        pass
 
     def program(self):
         children = []
@@ -1304,15 +1268,15 @@ class Parser:
         return Node(f'({self.lookahead[1].value}, {self.lookahead[0]})')
 
     def _handle_invalid_input(self):
-        # self.syntax_io.print_syntax_error(ErrorType.ILLEGAL, self.lookahead[0], self.lookahead[2])
+        self.syntax_io.print_syntax_error(ErrorType.ILLEGAL, self.lookahead[0], self.lookahead[2])
         self._move_lookahead()
 
     def _handle_missing_non_term(self, non_term):
-        # self.syntax_io.print_syntax_error(ErrorType.MISSING, non_term.value, self.lookahead[2])
+        self.syntax_io.print_syntax_error(ErrorType.MISSING, non_term.value, self.lookahead[2])
         pass
 
     def _handle_missing_token(self, missed, next_state):
-        # self.syntax_io.print_syntax_error(ErrorType.MISSING, missed, self.lookahead[2])
+        self.syntax_io.print_syntax_error(ErrorType.MISSING, missed, self.lookahead[2])
         self.current_node = next_state
     
     def _handle_unexpected_eof(self):
@@ -1353,7 +1317,7 @@ class Parser:
                 self._handle_missing_token(expected.value, next)
 
 
-a = Parser(Scanner())
-x = a.program()
-for pre, fill, node in RenderTree(x):
-    print("%s%s" % (pre, node.name))
+# a = Parser(Scanner())
+# x = a.program()
+# for pre, fill, node in RenderTree(x):
+#     print("%s%s" % (pre, node.name))
