@@ -651,7 +651,7 @@ class Parser:
         return self._make_tree(parent, children)
 
     def simple_expression_zegond(self):
-        parent = Node(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND.value)
+        parent = Node(NonTerminal.SIMPLE_EXPRESSION_ZEGOND.value)
         children = []
         while self.current_node != 96:
             if self.current_node == 94:
@@ -884,7 +884,7 @@ class Parser:
         return self._make_tree(parent, children)
 
     def term_zegond(self):
-        parent = Node(NonTerminal.TERM_PRIME.value)
+        parent = Node(NonTerminal.TERM_ZEGOND.value)
         children = []
         while self.current_node != 128:
             if self.current_node == 126:
@@ -948,8 +948,8 @@ class Parser:
                     self._handle_invalid_input()
                     return self.factor()
             elif self.current_node == 136:
-                self.current_node = 80
-                children.append(self.expression())
+                self.current_node = 138
+                children.append(self.var_call_prime())
                 self.current_node = 137
             elif self.current_node == 134:
                 self.current_node = 80
