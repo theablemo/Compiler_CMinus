@@ -1,7 +1,8 @@
-from enum import Enum, auto
 from anytree import Node
 
-from IO.file_IO import TokenType
+# from parser_sup import error_type
+# from IO.syntax_error import SyntaxIO
+from IO.file_IO import ErrorType, TokenType
 from parser_sup.non_terminal import first_dictionary, follow_dictionary, NonTerminal
 
 
@@ -37,20 +38,15 @@ class Link:
 #         self.out_links = out_links
 #         self.number = number
 
-class ErrorType(Enum):
-    NOT_IN_FOLLOW = auto()
-    IN_FOLLOW = auto()
-    TERMINALS_NOT_MATCH = auto()
-
 
 class Parser:
     def __init__(self, scanner) -> None:
-        # initialize all terminal, nonterminals, nodes, and links
-        # keep nodes in a dict
+        #terminate no syntax error
         self.nodes = {}
         self.current_node = 0
         self.scanner = scanner
-        self.lookahead = scanner.get_next_token()
+        self.lookahead= scanner.get_next_token()
+        self.syntax_io = SyntaxIO()
         pass
 
     def move(self, token):
@@ -74,7 +70,7 @@ class Parser:
                     children.append(self.declaration_list())
                     self.current_node = 1
                 elif self._is_in_follow_set(NonTerminal.PROGRAM):
-                    self._handle_missing_non_term(NonTerminal.PROGRAM.value)
+                    self._handle_missing_non_term(NonTerminal.PROGRAM)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -98,7 +94,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.DECLARATION_LIST):
                     return None
                 elif self._is_in_follow_set(NonTerminal.DECLARATION_LIST):
-                    self._handle_missing_non_term(NonTerminal.DECLARATION_LIST.value)
+                    self._handle_missing_non_term(NonTerminal.DECLARATION_LIST)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -119,7 +115,7 @@ class Parser:
                     children.append(self.declaration_initial())
                     self.current_node = 7
                 elif self._is_in_follow_set(NonTerminal.DECLARATION):
-                    self._handle_missing_non_term(NonTerminal.DECLARATION.value)
+                    self._handle_missing_non_term(NonTerminal.DECLARATION)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -140,7 +136,7 @@ class Parser:
                     children.append(self.type_specifier())
                     self.current_node = 10
                 elif self._is_in_follow_set(NonTerminal.DECLARATION):
-                    self._handle_missing_non_term(NonTerminal.DECLARATION_INITIAL.value)
+                    self._handle_missing_non_term(NonTerminal.DECLARATION_INITIAL)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -163,7 +159,7 @@ class Parser:
                     children.append(self.var_declaration_prime())
                     self.current_node = 13
                 elif self._is_in_follow_set(NonTerminal.DECLARATION_PRIME):
-                    self._handle_missing_non_term(NonTerminal.DECLARATION_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.DECLARATION_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -180,7 +176,7 @@ class Parser:
                 elif self.lookahead[0] == ';':
                     self._add_leaf_to_tree(children, parent, 19)
                 elif self._is_in_follow_set(NonTerminal.VAR_DECLARATION_PRIME):
-                    self._handle_missing_non_term(NonTerminal.VAR_DECLARATION_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.VAR_DECLARATION_PRIME)
                     return None
                 else:
                     # TODO: which edge ??!
@@ -203,7 +199,7 @@ class Parser:
                 if self.lookahead[0] == '(':
                     self._add_leaf_to_tree(children, parent, 21)
                 elif self._is_in_follow_set(NonTerminal.FUN_DECLARATION_PRIME):
-                    self._handle_missing_non_term(NonTerminal.FUN_DECLARATION_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.FUN_DECLARATION_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -230,7 +226,7 @@ class Parser:
                 elif self.lookahead[0] == 'void':
                     self._add_leaf_to_tree(children, parent, 26)
                 elif self._is_in_follow_set(NonTerminal.TYPE_SPECIFIER):
-                    self._handle_missing_non_term(NonTerminal.TYPE_SPECIFIER.value)
+                    self._handle_missing_non_term(NonTerminal.TYPE_SPECIFIER)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -246,7 +242,7 @@ class Parser:
                 elif self.lookahead[0] == 'void':
                     self._add_leaf_to_tree(children, parent, 31)
                 elif self._is_in_follow_set(NonTerminal.PARAMS):
-                    self._handle_missing_non_term(NonTerminal.PARAMS.value)
+                    self._handle_missing_non_term(NonTerminal.PARAMS)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -273,7 +269,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.PARAM_LIST):
                     return None
                 elif self._is_in_follow_set(NonTerminal.PARAM_LIST):
-                    self._handle_missing_non_term(NonTerminal.PARAMS.value)
+                    self._handle_missing_non_term(NonTerminal.PARAMS)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -298,7 +294,7 @@ class Parser:
                     children.append(self.declaration_initial())
                     self.current_node = 37
                 elif self._is_in_follow_set(NonTerminal.DECLARATION_INITIAL):
-                    self._handle_missing_non_term(NonTerminal.PARAM.value)
+                    self._handle_missing_non_term(NonTerminal.PARAM)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -319,7 +315,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.PARAM_PRIME):
                     return None
                 elif self._is_in_follow_set(NonTerminal.PARAM_PRIME):
-                    self._handle_missing_non_term(NonTerminal.PARAM_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.PARAM_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -336,7 +332,7 @@ class Parser:
                 if self.lookahead[0] == '{':
                     self._add_leaf_to_tree(children, parent, 43)
                 elif self._is_in_follow_set(NonTerminal.COMPOUND_STMT):
-                    self._handle_missing_non_term(NonTerminal.COMPOUND_STMT.value)
+                    self._handle_missing_non_term(NonTerminal.COMPOUND_STMT)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -365,7 +361,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.STATEMENT_LIST):
                     return None
                 elif self._is_in_follow_set(NonTerminal.STATEMENT_LIST):
-                    self._handle_missing_non_term(NonTerminal.STATEMENT_LIST.value)
+                    self._handle_missing_non_term(NonTerminal.STATEMENT_LIST)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -402,7 +398,7 @@ class Parser:
                     children.append(self.return_stmt())
                     self.current_node = 51
                 elif self._is_in_follow_set(NonTerminal.STATEMENT):
-                    self._handle_missing_non_term(NonTerminal.STATEMENT.value)
+                    self._handle_missing_non_term(NonTerminal.STATEMENT)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -423,7 +419,7 @@ class Parser:
                 elif self.lookahead[0] == ';':
                     self._add_leaf_to_tree(children, parent, 55)
                 elif self._is_in_follow_set(NonTerminal.EXPRESSION_STMT):
-                    self._handle_missing_non_term(NonTerminal.EXPRESSION_STMT.value)
+                    self._handle_missing_non_term(NonTerminal.EXPRESSION_STMT)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -442,7 +438,7 @@ class Parser:
                 if self.lookahead[0] == 'if':
                     self._add_leaf_to_tree(children, parent, 57)
                 elif self._is_in_follow_set(NonTerminal.SELECTION_STMT):
-                    self._handle_missing_non_term(NonTerminal.SELECTION_STMT.value)
+                    self._handle_missing_non_term(NonTerminal.SELECTION_STMT)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -475,7 +471,7 @@ class Parser:
                 elif self.lookahead[0] == 'endif':
                     self._add_leaf_to_tree(children, parent, 66)
                 elif self._is_in_follow_set(NonTerminal.ELSE_STMT):
-                    self._handle_missing_non_term(NonTerminal.ELSE_STMT.value)
+                    self._handle_missing_non_term(NonTerminal.ELSE_STMT)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -496,7 +492,7 @@ class Parser:
                 if self.lookahead[0] == 'repeat':
                     self._add_leaf_to_tree(children, parent, 68)
                 elif self._is_in_follow_set(NonTerminal.ITERATION_STMT):
-                    self._handle_missing_non_term(NonTerminal.ITERATION_STMT.value)
+                    self._handle_missing_non_term(NonTerminal.ITERATION_STMT)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -525,7 +521,7 @@ class Parser:
                 if self.lookahead[0] == 'return':
                     self._add_leaf_to_tree(children, parent, 75)
                 elif self._is_in_follow_set(NonTerminal.RETURN_STMT):
-                    self._handle_missing_non_term(NonTerminal.RETURN_STMT.value)
+                    self._handle_missing_non_term(NonTerminal.RETURN_STMT)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -548,7 +544,7 @@ class Parser:
                 elif self.lookahead[0] == ';':
                     self._add_leaf_to_tree(children, parent, 79)
                 elif self._is_in_follow_set(NonTerminal.RETURN_STMT_PRIME):
-                    self._handle_missing_non_term(NonTerminal.RETURN_STMT_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.RETURN_STMT_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -569,7 +565,7 @@ class Parser:
                 elif self.lookahead[1] is TokenType.ID:
                     self._add_leaf_to_tree(children, parent, 81)
                 elif self._is_in_follow_set(NonTerminal.EXPRESSION):
-                    self._handle_missing_non_term(NonTerminal.EXPRESSION.value)
+                    self._handle_missing_non_term(NonTerminal.EXPRESSION)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -594,7 +590,7 @@ class Parser:
                 elif self.lookahead[0] == '=':
                     self._add_leaf_to_tree(children, parent, 87)
                 elif self._is_in_follow_set(NonTerminal.B):
-                    self._handle_missing_non_term(NonTerminal.B.value)
+                    self._handle_missing_non_term(NonTerminal.B)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -627,7 +623,7 @@ class Parser:
                     children.append(self.g())
                     self.current_node = 90
                 elif self._is_in_follow_set(NonTerminal.H):
-                    self._handle_missing_non_term(NonTerminal.H.value)
+                    self._handle_missing_non_term(NonTerminal.H)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -656,7 +652,7 @@ class Parser:
                     children.append(self.additive_expression_zegond())
                     self.current_node = 95
                 elif self._is_in_follow_set(NonTerminal.SIMPLE_EXPRESSION_ZEGOND):
-                    self._handle_missing_non_term(NonTerminal.SIMPLE_EXPRESSION_ZEGOND.value)
+                    self._handle_missing_non_term(NonTerminal.SIMPLE_EXPRESSION_ZEGOND)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -677,7 +673,7 @@ class Parser:
                     children.append(self.additive_expression_prime())
                     self.current_node = 98
                 elif self._is_in_follow_set(NonTerminal.SIMPLE_EXPRESSION_PRIME):
-                    self._handle_missing_non_term(NonTerminal.SIMPLE_EXPRESSION_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.SIMPLE_EXPRESSION_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -700,7 +696,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.C):
                     return None
                 elif self._is_in_follow_set(NonTerminal.C):
-                    self._handle_missing_non_term(NonTerminal.C.value)
+                    self._handle_missing_non_term(NonTerminal.C)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -721,7 +717,7 @@ class Parser:
                 elif self.lookahead[0] == '==':
                     self._add_leaf_to_tree(children, parent, 104)
                 elif self._is_in_follow_set(NonTerminal.RELOP):
-                    self._handle_missing_non_term(NonTerminal.RELOP.value)
+                    self._handle_missing_non_term(NonTerminal.RELOP)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -738,7 +734,7 @@ class Parser:
                     children.append(self.term())
                     self.current_node = 106
                 elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION):
-                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION.value)
+                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -759,7 +755,7 @@ class Parser:
                     children.append(self.term_prime())
                     self.current_node = 109
                 elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION_PRIME):
-                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -780,7 +776,7 @@ class Parser:
                     children.append(self.term_zegond())
                     self.current_node = 112
                 elif self._is_in_follow_set(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND):
-                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND.value)
+                    self._handle_missing_non_term(NonTerminal.ADDITIVE_EXPRESSION_ZEGOND)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -803,7 +799,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.D):
                     return None
                 elif self._is_in_follow_set(NonTerminal.D):
-                    self._handle_missing_non_term(NonTerminal.D.value)
+                    self._handle_missing_non_term(NonTerminal.D)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -828,7 +824,7 @@ class Parser:
                 elif self.lookahead[0] == '-':
                     self._add_leaf_to_tree(children, parent, 119)
                 elif self._is_in_follow_set(NonTerminal.ADDOP):
-                    self._handle_missing_non_term(NonTerminal.ADDOP.value)
+                    self._handle_missing_non_term(NonTerminal.ADDOP)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -845,7 +841,7 @@ class Parser:
                     children.append(self.factor())
                     self.current_node = 121
                 elif self._is_in_follow_set(NonTerminal.TERM):
-                    self._handle_missing_non_term(NonTerminal.TERM.value)
+                    self._handle_missing_non_term(NonTerminal.TERM)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -866,7 +862,7 @@ class Parser:
                     children.append(self.factor_prime())
                     self.current_node = 124
                 elif self._is_in_follow_set(NonTerminal.TERM_PRIME):
-                    self._handle_missing_non_term(NonTerminal.TERM_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.TERM_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -887,7 +883,7 @@ class Parser:
                     children.append(self.factor_zegond())
                     self.current_node = 127
                 elif self._is_in_follow_set(NonTerminal.TERM_ZEGOND):
-                    self._handle_missing_non_term(NonTerminal.TERM_ZEGOND.value)
+                    self._handle_missing_non_term(NonTerminal.TERM_ZEGOND)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -908,7 +904,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.G):
                     return None
                 elif self._is_in_follow_set(NonTerminal.G):
-                    self._handle_missing_non_term(NonTerminal.G.value)
+                    self._handle_missing_non_term(NonTerminal.G)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -935,7 +931,7 @@ class Parser:
                 elif self.lookahead[1] is TokenType.ID:
                     self._add_leaf_to_tree(children, parent, 136)
                 elif self._is_in_follow_set(NonTerminal.FACTOR):
-                    self._handle_missing_non_term(NonTerminal.FACTOR.value)
+                    self._handle_missing_non_term(NonTerminal.FACTOR)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -964,7 +960,7 @@ class Parser:
                     children.append(self.var_prime())
                     self.current_node = 141
                 elif self._is_in_follow_set(NonTerminal.VAR_CALL_PRIME):
-                    self._handle_missing_non_term(NonTerminal.VAR_CALL_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.VAR_CALL_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -987,7 +983,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.VAR_PRIME):
                     return None
                 elif self._is_in_follow_set(NonTerminal.VAR_PRIME):
-                    self._handle_missing_non_term(NonTerminal.VAR_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.VAR_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -1010,7 +1006,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.FACTOR_PRIME):
                     return None
                 elif self._is_in_follow_set(NonTerminal.FACTOR_PRIME):
-                    self._handle_missing_non_term(NonTerminal.FACTOR_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.FACTOR_PRIME)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -1033,7 +1029,7 @@ class Parser:
                 elif self.lookahead[1] is TokenType.NUM:
                     self._add_leaf_to_tree(children, parent, 153)
                 elif self._is_in_follow_set(NonTerminal.FACTOR_ZEGOND):
-                    self._handle_missing_non_term(NonTerminal.FACTOR_ZEGOND.value)
+                    self._handle_missing_non_term(NonTerminal.FACTOR_ZEGOND)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -1058,7 +1054,7 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.ARGS):
                     return None
                 elif self._is_in_follow_set(NonTerminal.ARGS):
-                    self._handle_missing_non_term(NonTerminal.ARGS.value)
+                    self._handle_missing_non_term(NonTerminal.ARGS)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -1075,7 +1071,7 @@ class Parser:
                     children.append(self.expression())
                     self.current_node = 157
                 elif self._is_in_follow_set(NonTerminal.ARG_LIST):
-                    self._handle_missing_non_term(NonTerminal.ARG_LIST.value)
+                    self._handle_missing_non_term(NonTerminal.ARG_LIST)
                     return None
                 else:
                     self._handle_invalid_input()
@@ -1096,8 +1092,10 @@ class Parser:
                 elif self._is_epsilon_move_valid(NonTerminal.ARG_LIST_PRIME):
                     return None
                 elif self._is_in_follow_set(NonTerminal.ARG_LIST_PRIME):
-                    self._handle_missing_non_term(NonTerminal.ARG_LIST_PRIME.value)
+                    self._handle_missing_non_term(NonTerminal.ARG_LIST_PRIME)
                 else:
+                    if self.lookahead[1] is TokenType.END:
+                        return None
                     self._handle_invalid_input()
                     return self.arg_list_prime()
             elif self.current_node == 160:
@@ -1145,16 +1143,16 @@ class Parser:
     def _get_leaf_node(self, parent):
         return Node(str((self.lookahead[0], self.lookahead[1])), parent)
 
-    def _handle_missing_non_term(self, non_term: str):
-        # TODO: write error
-        pass
-
     def _handle_invalid_input(self):
-        # TODO: write invalid input
+        # self.syntax_io.print_syntax_error(ErrorType.ILLEGAL, self.lookahead[0], self.lookahead[2])
         self._move_lookahead()
 
+    def _handle_missing_non_term(self, non_term):
+        # self.syntax_io.print_syntax_error(ErrorType.MISSING, non_term.value, self.lookahead[2])
+        pass
+
     def _handle_missing_token(self, missed, next_state):
-        # TODO: handle missing token
+        # self.syntax_io.print_syntax_error(ErrorType.MISSING, missed, self.lookahead[2])
         self.current_node = next_state
 
     def _add_leaf_to_tree(self, children, parent, next):
