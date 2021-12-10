@@ -260,7 +260,7 @@ class Parser:
                 self.current_node = 30
             elif self.current_node == 30:
                 self.current_node = 32
-                self.param_list()
+                children.append(self.param_list())
                 self.current_node = 31
         return self._make_tree(parent, children)
 
