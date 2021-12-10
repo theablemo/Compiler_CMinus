@@ -67,6 +67,8 @@ class Parser:
         children = []
         parent = Node(NonTerminal.PROGRAM.value)
         while self.current_node != 2:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 0:
                 if self._is_nt_edge_valid(NonTerminal.DECLARATION_LIST):
                     self.current_node = 3
@@ -89,6 +91,8 @@ class Parser:
         children = []
         parent = Node(NonTerminal.DECLARATION_LIST.value)
         while self.current_node != 5:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 3:
                 if self._is_nt_edge_valid(NonTerminal.DECLARATION):
                     self.current_node = 6
@@ -268,6 +272,8 @@ class Parser:
         parent = Node(NonTerminal.PARAM_LIST.value)
         children = []
         while self.current_node != 35:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 32:
                 if self.lookahead[0] == ',':
                     self._add_leaf_to_tree(children, parent, 33)
@@ -315,6 +321,8 @@ class Parser:
         parent = Node(NonTerminal.PARAM_PRIME.value)
         children = []
         while self.current_node != 41:
+            if self.lookahead[1] is TokenType.END:
+                break
             if self.current_node == 39:
                 if self.lookahead[0] == '[':
                     self._add_leaf_to_tree(children, parent, 40)
@@ -1138,6 +1146,8 @@ class Parser:
         :param children: list of Nodes
         :return: A tree with 'parent' as root and 'children' as its children
         """
+        if len(children) == 0:
+            return None
         for child in children:
             if child is not None:
                 child.parent = parent
