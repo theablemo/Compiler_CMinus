@@ -45,7 +45,7 @@ class Parser:
         self.nodes = {}
         self.current_node = 0
         self.scanner = scanner
-        self.lookahead, self.lineno = scanner.get_next_token()
+        self.lookahead= scanner.get_next_token()
         self.syntax_io = SyntaxIO()
         pass
 
@@ -1133,7 +1133,7 @@ class Parser:
         return self.lookahead[0] in follow_dictionary.get(non_term)
 
     def _move_lookahead(self):
-        self.lookahead, self.lineno = self.scanner.get_next_token()
+        self.lookahead = self.scanner.get_next_token()
 
     def _is_in_follow_set(self, non_term):
         return self.lookahead[0] in follow_dictionary(non_term)
@@ -1142,18 +1142,14 @@ class Parser:
         return Node(str((self.lookahead[0], self.lookahead[1])), parent)
 
     def _handle_invalid_input(self):
-        self.syntax_io.print_syntax_error(ErrorType.ILLEGAL, self.lookahead, self.lineno)
-        # TODO: write invalid input
+        self.syntax_io.print_syntax_error(ErrorType.ILLEGAL, self.lookahead[0], self.lookahead[2])
         self._move_lookahead()
 
     def _handle_missing_non_term(self, non_term):
-        
-        # TODO: write error
-        pass
+        self.syntax_io.print_syntax_error(ErrorType.MISSING, non_term.value, self.lookahead[2])
 
     def _handle_missing_token(self, missed, next_state):
-        self.syntax_io.print_syntax_error(ErrorType.MISSING, missed, self.lineno)
-        # TODO: handle missing token
+        self.syntax_io.print_syntax_error(ErrorType.MISSING, missed, self.lookahead[2])
         self.current_node = next_state
 
     def _add_leaf_to_tree(self, children, parent, next):
