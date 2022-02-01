@@ -1,23 +1,23 @@
-Program -> #startscope Declaration-list #endscope $
+Program -> #start_scope Declaration-list #end_scope $
 Declaration-list -> Declaration Declaration-list
 Declaration-list -> EPSILON
 Declaration -> Declaration-initial Declaration-prime
-Declaration-initial -> Type-specifier #pushlexeme ID
+Declaration-initial -> Type-specifier #push_lexeme ID
 Declaration-prime -> Fun-declaration-prime
 Declaration-prime -> Var-declaration-prime
-Var-declaration-prime -> ; #setvar
-Var-declaration-prime -> [ #pnum NUM ] ; #setarr
-Fun-declaration-prime -> #save_func_add #stop_symbol ( Params ) #label #get_temp #get_temp #startreturn Compound-stmt #endreturn #return_address #save_func_atts #func_backpatching
+Var-declaration-prime -> ; #set_var
+Var-declaration-prime -> [ #pnum NUM ] ; #set_arr
+Fun-declaration-prime -> #save_func_add #stop_symbol ( Params ) #label #get_temp #get_temp #start_return Compound-stmt #end_return #return_address #save_func_atts #func_backpatching
 Type-specifier -> int
 Type-specifier -> void
-Params -> int #pushlexeme ID #setvar Param-prime Param-list
+Params -> int #push_lexeme ID #set_var Param-prime Param-list
 Params -> void
-Param-list -> , Param #setvar Param-list
+Param-list -> , Param #set_var Param-list
 Param-list -> EPSILON
 Param -> Declaration-initial Param-prime
 Param-prime -> [ ]
 Param-prime -> EPSILON
-Compound-stmt -> { #startscope Declaration-list Statement-list #endscope }
+Compound-stmt -> { #start_scope Declaration-list Statement-list #end_scope }
 Statement-list -> Statement Statement-list
 Statement-list -> EPSILON
 Statement -> Expression-stmt
@@ -26,13 +26,13 @@ Statement -> Selection-stmt
 Statement -> Iteration-stmt
 Statement -> Return-stmt
 Expression-stmt -> Expression ; #pop
-Expression-stmt -> break ; #break
+Expression-stmt -> break ; #break_func
 Expression-stmt -> ;
 Selection-stmt -> if ( Expression ) #save Statement Else-stmt
 Else-stmt -> endif #jpf
 Else-stmt -> else #jpf_save Statement endif #jp
-Iteration-stmt -> repeat #label #startbreak Statement #endbrake until ( Expression ) #until
-Return-stmt -> return Return-stmt-prime #return
+Iteration-stmt -> repeat #label #start_break Statement #end_brake until ( Expression ) #until
+Return-stmt -> return Return-stmt-prime #return_func
 Return-stmt-prime -> #numeric_label ;
 Return-stmt-prime -> Expression ;
 Expression -> Simple-expression-zegond
@@ -44,14 +44,14 @@ H -> = Expression #assign
 H -> G D C
 Simple-expression-zegond -> Additive-expression-zegond C
 Simple-expression-prime -> Additive-expression-prime C
-C -> #pushlexeme Relop Additive-expression #operation
+C -> #push_lexeme Relop Additive-expression #operation
 C -> EPSILON
 Relop -> <
 Relop -> ==
 Additive-expression -> Term D
 Additive-expression-prime -> Term-prime D
 Additive-expression-zegond -> Term-zegond D
-D -> #pushlexeme Addop Term #operation D
+D -> #push_lexeme Addop Term #operation D
 D -> EPSILON
 Addop -> +
 Addop -> -
