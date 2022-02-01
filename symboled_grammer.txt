@@ -1,0 +1,78 @@
+Program -> #startscope Declaration-list #endscope $
+Declaration-list -> Declaration Declaration-list
+Declaration-list -> EPSILON
+Declaration -> Declaration-initial Declaration-prime
+Declaration-initial -> Type-specifier #pushlexeme ID
+Declaration-prime -> Fun-declaration-prime
+Declaration-prime -> Var-declaration-prime
+Var-declaration-prime -> ; #setvar
+Var-declaration-prime -> [ #pnum NUM ] ; #setarr
+Fun-declaration-prime -> #save_func_add #stop_symbol ( Params ) #label #get_temp #get_temp #startreturn Compound-stmt #endreturn #return_address #save_func_atts #func_backpatching
+Type-specifier -> int
+Type-specifier -> void
+Params -> int #pushlexeme ID #setvar Param-prime Param-list
+Params -> void
+Param-list -> , Param #setvar Param-list
+Param-list -> EPSILON
+Param -> Declaration-initial Param-prime
+Param-prime -> [ ]
+Param-prime -> EPSILON
+Compound-stmt -> { #startscope Declaration-list Statement-list #endscope }
+Statement-list -> Statement Statement-list
+Statement-list -> EPSILON
+Statement -> Expression-stmt
+Statement -> Compound-stmt
+Statement -> Selection-stmt
+Statement -> Iteration-stmt
+Statement -> Return-stmt
+Expression-stmt -> Expression ; #pop
+Expression-stmt -> break ; #break
+Expression-stmt -> ;
+Selection-stmt -> if ( Expression ) #save Statement Else-stmt
+Else-stmt -> endif #jpf
+Else-stmt -> else #jpf_save Statement endif #jp
+Iteration-stmt -> repeat #label #startbreak Statement #endbrake until ( Expression ) #until
+Return-stmt -> return Return-stmt-prime #return
+Return-stmt-prime -> #numeric_label ;
+Return-stmt-prime -> Expression ;
+Expression -> Simple-expression-zegond
+Expression -> #pid ID B
+B -> = Expression #assign
+B -> [ Expression ] #access_array_index H
+B -> Simple-expression-prime
+H -> = Expression #assign
+H -> G D C
+Simple-expression-zegond -> Additive-expression-zegond C
+Simple-expression-prime -> Additive-expression-prime C
+C -> #pushlexeme Relop Additive-expression #operation
+C -> EPSILON
+Relop -> <
+Relop -> ==
+Additive-expression -> Term D
+Additive-expression-prime -> Term-prime D
+Additive-expression-zegond -> Term-zegond D
+D -> #pushlexeme Addop Term #operation D
+D -> EPSILON
+Addop -> +
+Addop -> -
+Term -> Factor G
+Term-prime -> Factor-prime G
+Term-zegond -> Factor-zegond G
+G -> * Factor #mult G
+G -> EPSILON
+Factor -> ( Expression )
+Factor -> #pid ID Var-call-prime
+Factor -> #pnum NUM
+Var-call-prime -> ( Args #output ) #call_function
+Var-call-prime -> Var-prime
+Var-prime -> [ Expression ] #assign_array_index
+Var-prime -> EPSILON
+Factor-prime -> ( Args #output ) #call_function
+Factor-prime -> EPSILON
+Factor-zegond -> ( Expression )
+Factor-zegond -> #pnum NUM
+Args -> Arg-list
+Args -> EPSILON
+Arg-list -> Expression Arg-list-prime
+Arg-list-prime -> , Expression Arg-list-prime
+Arg-list-prime -> EPSILON
