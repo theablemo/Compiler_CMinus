@@ -20,6 +20,9 @@ class PB:
             addresses.append(str(memory.get_data_address()))
         self.add_instruction(self.i, 'ASSIGN', f'#{addresses[0]}', array_pointer_address)
         self.i += 1
-        symbol_table.add_to_table((lexeme, 'array', array_pointer_address)) 
+        symbol_table.add_to_table((lexeme, 'array', array_pointer_address))
+
+    def forward(self):
+        self.i += 1
 
         
