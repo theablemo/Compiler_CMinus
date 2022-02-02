@@ -16,6 +16,7 @@ def code_gen(token, action):
         "start_break": start_break,
         "end_break": end_break,
         "until": until,
+        "label": label,
         "break_func": break_func,
         "pid": pid,
         "pnum": pnum,
@@ -27,7 +28,6 @@ def code_gen(token, action):
         "save_func_add": save_func_add,
         "stop_symbol": stop_symbol,
 
-        "label": label,
         "get_temp": get_temp,
         "start_return": start_return,
         "end_return": end_return,
@@ -98,3 +98,17 @@ def stop_symbol(*args):
     # TODO: Use sth else instead of STOP
     symbol_table.add_to_table('STOP')
 
+
+def numeric_label(*args):
+    scope_stack.append('#' + program_block.i)
+
+
+def label(*args):
+    semantic_stack.append(program_block.i)
+
+
+def until(*args):
+    condition = semantic_stack.pop()
+    l = semantic_stack.pop()
+    program_block.add_instruction(program_block.i, 'JPF', condition, l, '')
+    program_block.forward()
