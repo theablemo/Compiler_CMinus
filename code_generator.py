@@ -59,8 +59,9 @@ def code_gen(token, action):
 
 def pid(identifier):
     if identifier == 'output':
-        return 'output'
-    SS.append(symbol_table.get_address(identifier))
+        SS.append('output')
+    else:
+        SS.append(symbol_table.get_address(identifier))
 
 
 def pnum(num):
@@ -68,7 +69,7 @@ def pnum(num):
 
 
 def start_scope(*args):
-    SS.append(symbol_table.size)
+    scope_stack.append(symbol_table.size)
 
 
 def end_scope(*args):
@@ -81,7 +82,8 @@ def push_lexeme(lexeme):
     SS.append(lexeme)
 
 
-def set_var(lexeme):
+def set_var(*args):
+    lexeme = SS.pop()
     program_block.initialize_var(memory, symbol_table, lexeme)
 
 
@@ -141,7 +143,7 @@ def get_temp(*args):
     #todo: ask for zero in PB
 
 def start_return(*args):
-    return_stack.append((SpecialSymbol.RETURN_STACK_START , "#0"))
+    return_stack.append((SpecialSymbol.RETURN_STACK_START, "#0"))
 
 def end_return(*args):
     top = return_stack.pop()
