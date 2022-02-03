@@ -31,7 +31,7 @@ Expression-stmt -> ;
 Selection-stmt -> if ( Expression ) #save Statement Else-stmt
 Else-stmt -> endif #jpf
 Else-stmt -> else #jpf_save Statement endif #jp
-Iteration-stmt -> repeat #label #start_break Statement #end_brake until ( Expression ) #until
+Iteration-stmt -> repeat #label #break_start Statement until ( Expression ) #until #break_end
 Return-stmt -> return Return-stmt-prime #return_func
 Return-stmt-prime -> #numeric_label ;
 Return-stmt-prime -> Expression ;
