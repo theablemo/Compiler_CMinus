@@ -1,10 +1,9 @@
-from enum import Enum, auto
-from anytree import Node, RenderTree
+from anytree import Node
 
-
-from parser_sup.error_type import ParserErrorType
-from IO.syntax_error import SyntaxIO, TreeIO
 from IO.file_IO import TokenType
+from IO.syntax_error import SyntaxIO, TreeIO
+from code_generator import code_gen
+from parser_sup.error_type import ParserErrorType
 from parser_sup.non_terminal import first_dictionary, follow_dictionary, NonTerminal
 
 
@@ -31,6 +30,7 @@ class Parser:
         parent = Node(NonTerminal.PROGRAM.value)
         while self.current_node != 2:
             if self.current_node == 0:
+                code_gen(self.lookahead[0], 'start_scope')
                 if self._is_nt_edge_valid(NonTerminal.DECLARATION_LIST):
                     self.current_node = 3
                     children.append(self.declaration_list())
@@ -45,6 +45,7 @@ class Parser:
                     self._handle_invalid_input()
                     return self.program()
             elif self.current_node == 1:
+                code_gen(self.lookahead[0], 'end_scope')
                 if self.lookahead[1] is TokenType.END and not self.unexpected_eof_flag:
                     self._add_leaf_to_tree(children, parent, 2, end=True)
                 else:
@@ -121,6 +122,7 @@ class Parser:
                     self._handle_invalid_input()
                     return self.declaration_initial()
             elif self.current_node == 10:
+                code_gen(self.lookahead[0], 'push_lexeme')
                 self._move_terminal_edge(children, parent, TokenType.ID, 11)
         return self._make_tree(parent, children)
 
@@ -157,6 +159,7 @@ class Parser:
                     self._add_leaf_to_tree(children, parent, 15)
                 elif self.lookahead[0] == ';':
                     self._add_leaf_to_tree(children, parent, 19)
+                    code_gen(self.lookahead[0], 'set_var')
                 elif self._is_in_follow_set(NonTerminal.VAR_DECLARATION_PRIME):
                     self._handle_missing_non_term(NonTerminal.VAR_DECLARATION_PRIME)
                     return None
@@ -164,16 +167,17 @@ class Parser:
                     self._handle_unexpected_eof()
                     break
                 else:
-                    # TODO: which edge ??!
                     self._handle_invalid_input()
                     return self.var_declaration_prime()
             elif self.current_node == 15:
+                code_gen(self.lookahead[0], 'pnum')
                 self._move_terminal_edge(children, parent, TokenType.NUM, 17)
             elif self.current_node == 17:
                 self._move_terminal_edge(children, parent, ']', 18)
             elif self.current_node == 18:
                 if self.lookahead[0] == ';':
                     self._move_terminal_edge(children, parent, ';', 19)
+                    code_gen(self.lookahead[0], 'set_arr')
         return self._make_tree(parent, children)
 
     def fun_declaration_prime(self):
@@ -181,6 +185,8 @@ class Parser:
         children = []
         while self.current_node != 24:
             if self.current_node == 20:
+                code_gen(self.lookahead[0], 'save_func_add')
+                code_gen(self.lookahead[0], 'stop_symbol')
                 if self.lookahead[0] == '(':
                     self._add_leaf_to_tree(children, parent, 21)
                 elif self._is_in_follow_set(NonTerminal.FUN_DECLARATION_PRIME):
@@ -199,9 +205,17 @@ class Parser:
             elif self.current_node == 22:
                 self._move_terminal_edge(children, parent, ')', 23)
             elif self.current_node == 23:
+                code_gen(self.lookahead[0], 'label')
+                code_gen(self.lookahead[0], 'get_temp')
+                code_gen(self.lookahead[0], 'get_temp')
+                code_gen(self.lookahead[0], 'start_return')
                 self.current_node = 42
                 children.append(self.compound_stmt())
                 self.current_node = 24
+        code_gen(self.lookahead[0], 'end_return')
+        code_gen(self.lookahead[0], 'return_address')
+        code_gen(self.lookahead[0], 'save_func_atts')
+        code_gen(self.lookahead[0], 'func_backpatching')
         return self._make_tree(parent, children)
 
     def type_specifier(self):
@@ -243,8 +257,10 @@ class Parser:
                     self._handle_invalid_input()
                     return self.params()
             elif self.current_node == 28:
+                code_gen(self.lookahead[0], 'push_lexeme')
                 self._move_terminal_edge(children, parent, TokenType.ID, 29)
             elif self.current_node == 29:
+                code_gen(self.lookahead[0], 'set_var')
                 self.current_node = 39
                 children.append(self.param_prime())
                 self.current_node = 30
@@ -278,6 +294,7 @@ class Parser:
                 children.append(self.param())
                 self.current_node = 34
             elif self.current_node == 34:
+                code_gen(self.lookahead[0], 'set_var')
                 self.current_node = 32
                 children.append(self.param_list())
                 self.current_node = 35
@@ -347,6 +364,7 @@ class Parser:
                     self._handle_invalid_input()
                     return self.compound_stmt()
             elif self.current_node == 43:
+                code_gen(self.lookahead[0], 'start_scope')
                 self.current_node = 3
                 children.append(self.declaration_list())
                 self.current_node = 44
@@ -355,6 +373,7 @@ class Parser:
                 children.append(self.statement_list())
                 self.current_node = 45
             elif self.current_node == 45:
+                code_gen(self.lookahead[0], 'end_scope')
                 self._move_terminal_edge(children, parent, '}', 46)
         return self._make_tree(parent, children)
 
@@ -445,8 +464,10 @@ class Parser:
                     return self.expression_stmt()
             elif self.current_node == 54:
                 self._move_terminal_edge(children, parent, ';', 55)
+                code_gen(self.lookahead[0], 'pop')
             elif self.current_node == 53:
                 self._move_terminal_edge(children, parent, ';', 55)
+                code_gen(self.lookahead[0], 'break_func')
         return self._make_tree(parent, children)
 
     def selection_stmt(self):
@@ -474,6 +495,7 @@ class Parser:
             elif self.current_node == 59:
                 self._move_terminal_edge(children, parent, ')', 60)
             elif self.current_node == 60:
+                code_gen(self.lookahead[0], 'save')
                 self.current_node = 50
                 children.append(self.statement())
                 self.current_node = 61
@@ -492,6 +514,7 @@ class Parser:
                     self._add_leaf_to_tree(children, parent, 64)
                 elif self.lookahead[0] == 'endif':
                     self._add_leaf_to_tree(children, parent, 66)
+                    code_gen(self.lookahead[0], 'jpf')
                 elif self._is_in_follow_set(NonTerminal.ELSE_STMT):
                     self._handle_missing_non_term(NonTerminal.ELSE_STMT)
                     return None
@@ -502,11 +525,13 @@ class Parser:
                     self._handle_invalid_input()
                     return self.else_stmt()
             elif self.current_node == 64:
+                code_gen(self.lookahead[0], 'jpf_save')
                 self.current_node = 50
                 children.append(self.statement())
                 self.current_node = 65
             elif self.current_node == 65:
                 self._move_terminal_edge(children, parent, 'endif', 66)
+                code_gen(self.lookahead[0], 'jp')
         return self._make_tree(parent, children)
 
     def iteration_stmt(self):
@@ -526,6 +551,8 @@ class Parser:
                     self._handle_invalid_input()
                     return self.iteration_stmt()
             elif self.current_node == 68:
+                code_gen(self.lookahead[0], 'label')
+                code_gen(self.lookahead[0], 'break_start')
                 self.current_node = 50
                 children.append(self.statement())
                 self.current_node = 69
@@ -539,6 +566,8 @@ class Parser:
                 self.current_node = 72
             elif self.current_node == 72:
                 self._move_terminal_edge(children, parent, ')', 73)
+        code_gen(self.lookahead[0], 'until')
+        code_gen(self.lookahead[0], 'break_end')
         return self._make_tree(parent, children)
 
     def return_stmt(self):
@@ -561,6 +590,7 @@ class Parser:
                 self.current_node = 77
                 children.append(self.return_stmt_prime())
                 self.current_node = 76
+        code_gen(self.lookahead[0], 'return_func')
         return self._make_tree(parent, children)
 
     def return_stmt_prime(self):
@@ -573,6 +603,7 @@ class Parser:
                     children.append(self.expression())
                     self.current_node = 78
                 elif self.lookahead[0] == ';':
+                    code_gen(self.lookahead[0], 'numeric_label')
                     self._add_leaf_to_tree(children, parent, 79)
                 elif self._is_in_follow_set(NonTerminal.RETURN_STMT_PRIME):
                     self._handle_missing_non_term(NonTerminal.RETURN_STMT_PRIME)
@@ -597,6 +628,7 @@ class Parser:
                     children.append(self.simple_expression_zegond())
                     self.current_node = 82
                 elif self.lookahead[1] is TokenType.ID:
+                    code_gen(self.lookahead[0], 'pid')
                     self._add_leaf_to_tree(children, parent, 81)
                 elif self._is_in_follow_set(NonTerminal.EXPRESSION):
                     self._handle_missing_non_term(NonTerminal.EXPRESSION)
@@ -639,6 +671,7 @@ class Parser:
                 self.current_node = 80
                 children.append(self.expression())
                 self.current_node = 88
+                code_gen(self.lookahead[0], 'assign')
             elif self.current_node == 84:
                 self.current_node = 80
                 children.append(self.expression())
@@ -646,6 +679,7 @@ class Parser:
             elif self.current_node == 85:
                 self._move_terminal_edge(children, parent, ']', 86)
             elif self.current_node == 86:
+                code_gen(self.lookahead[0], 'access_array_index')
                 self.current_node = 89
                 children.append(self.h())
                 self.current_node = 88
@@ -675,6 +709,7 @@ class Parser:
                 self.current_node = 80
                 children.append(self.expression())
                 self.current_node = 93
+                code_gen(self.lookahead[0], 'assign')
             elif self.current_node == 90:
                 self.current_node = 114
                 children.append(self.d())
@@ -739,6 +774,7 @@ class Parser:
         while self.current_node != 102:
             if self.current_node == 100:
                 if self._is_nt_edge_valid(NonTerminal.RELOP):
+                    code_gen(self.lookahead[0], 'push_lexeme')
                     self.current_node = 103
                     children.append(self.relop())
                     self.current_node = 101
@@ -758,6 +794,7 @@ class Parser:
                 self.current_node = 105
                 children.append(self.additive_expression())
                 self.current_node = 102
+                code_gen(self.lookahead[0], 'operation')
         return self._make_tree(parent, children)
 
     def relop(self):
@@ -858,6 +895,7 @@ class Parser:
         while self.current_node != 117:
             if self.current_node == 114:
                 if self._is_nt_edge_valid(NonTerminal.ADDOP):
+                    code_gen(self.lookahead[0], 'push_lexeme')
                     self.current_node = 118
                     children.append(self.addop())
                     self.current_node = 115
@@ -878,6 +916,7 @@ class Parser:
                 children.append(self.term())
                 self.current_node = 116
             elif self.current_node == 116:
+                code_gen(self.lookahead[0], 'operation')
                 self.current_node = 114
                 children.append(self.d())
                 self.current_node = 117
@@ -999,6 +1038,7 @@ class Parser:
                 children.append(self.factor())
                 self.current_node = 131
             elif self.current_node == 131:
+                code_gen(self.lookahead[0], 'mult')
                 self.current_node = 129
                 children.append(self.g())
                 self.current_node = 132
@@ -1012,9 +1052,10 @@ class Parser:
                 if self.lookahead[0] == '(':
                     self._add_leaf_to_tree(children, parent, 134)
                 elif self.lookahead[1] is TokenType.NUM:
+                    code_gen(self.lookahead[0], 'pnum')
                     self._add_leaf_to_tree(children, parent, 137)
                 elif self.lookahead[1] is TokenType.ID:
-                    self._add_leaf_to_tree(children, parent, 136)
+                    code_gen(self.lookahead[0], 'pid')
                 elif self._is_in_follow_set(NonTerminal.FACTOR):
                     self._handle_missing_non_term(NonTerminal.FACTOR)
                     return None
@@ -1061,7 +1102,9 @@ class Parser:
                 children.append(self.args())
                 self.current_node = 140
             elif self.current_node == 140:
+                code_gen(self.lookahead[0], 'output')
                 self._move_terminal_edge(children, parent, ')', 141)
+                code_gen(self.lookahead[0], 'call_function')
         return self._make_tree(parent, children)
 
     def var_prime(self):
@@ -1089,6 +1132,7 @@ class Parser:
                 self.current_node = 144
             elif self.current_node == 144:
                 self._move_terminal_edge(children, parent, ']', 145)
+                code_gen(self.lookahead[0], 'assign_array_index')
         return self._make_tree(parent, children)
 
     def factor_prime(self):
@@ -1115,7 +1159,9 @@ class Parser:
                 children.append(self.args())
                 self.current_node = 148
             elif self.current_node == 148:
+                code_gen(self.lookahead[0], 'output')
                 self._move_terminal_edge(children, parent, ')', 149)
+                code_gen(self.lookahead[0], 'call_function')
         return self._make_tree(parent, children)
 
     def factor_zegond(self):
@@ -1126,6 +1172,7 @@ class Parser:
                 if self.lookahead[0] == '(':
                     self._add_leaf_to_tree(children, parent, 151)
                 elif self.lookahead[1] is TokenType.NUM:
+                    code_gen(self.lookahead[0], 'pnum')
                     self._add_leaf_to_tree(children, parent, 153)
                 elif self._is_in_follow_set(NonTerminal.FACTOR_ZEGOND):
                     self._handle_missing_non_term(NonTerminal.FACTOR_ZEGOND)
