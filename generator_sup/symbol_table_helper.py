@@ -4,6 +4,9 @@ class SymbolTable:
         
     def add_to_table(self, row):
         self.table.append(row)
+    
+    def pop_from_table(self):
+        return self.table.pop()
 
     def get_address(self, identifier):
         for row in self.table[::-1]:
@@ -18,3 +21,4 @@ class SymbolTable:
     def collapse_symbol_table(self, to_keep):
         # Pop until the length of table becomes equal to 'remained'
         self.table = self.table[:to_keep]
+    

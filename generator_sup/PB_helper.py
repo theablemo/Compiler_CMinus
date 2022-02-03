@@ -3,7 +3,7 @@ class PB:
         self.code_memory = []
         self.i = 0
 
-    def add_instruction(self, index, op, x1, x2, x3):
+    def add_instruction(self, index, op, x1, x2 = '', x3 = ''):
         while len(self.code_memory) <= index:
             self.code_memory.append('')
         self.code_memory[index] = f'({op}, {x1}, {x2}, {x3})'
