@@ -1,6 +1,7 @@
 from generator_sup import *
 from generator_sup.PB_helper import PB
 from generator_sup.memory_helper import Memory
+from generator_sup.special_symbols import SpecialSymbol
 from generator_sup.symbol_table_helper import SymbolTable
 
 program_block = PB()
@@ -8,6 +9,8 @@ memory = Memory()
 symbol_table = SymbolTable()
 semantic_stack = []
 scope_stack = []
+
+break_stack = []
 
 
 def code_gen(token, action):
@@ -95,8 +98,7 @@ def save_func_add(*args):
 
 def stop_symbol(*args):
     # Add a STOP flag to the symbol table for future use
-    # TODO: Use sth else instead of STOP
-    symbol_table.add_to_table('STOP')
+    symbol_table.add_to_table(SpecialSymbol.SYMBOL_TABLE_STOP)
 
 
 def numeric_label(*args):
@@ -112,3 +114,21 @@ def until(*args):
     l = semantic_stack.pop()
     program_block.add_instruction(program_block.i, 'JPF', condition, l, '')
     program_block.forward()
+
+
+def start_break(*args):
+    break_stack.append(SpecialSymbol.BREAK_CHECKPOINT)
+
+
+def break_func(*args):
+    break_stack.append(program_block.i)
+    program_block.forward()
+
+
+def end_break(*args):
+    for j in break_stack[::-1]:
+        if j is SpecialSymbol.BREAK_CHECKPOINT:
+            break_stack.pop()
+            break
+        break_stack.pop()
+        program_block.add_instruction(j, 'JP', program_block.i, '', '')
