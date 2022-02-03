@@ -2,5 +2,5 @@ from enum import Enum
 
 
 class SpecialSymbol(Enum):
-    STOP = 'STOP',
-    START = 'START',
+    SYMBOL_TABLE_STOP = 'STOP',
+    BREAK_CHECKPOINT = 'BREAK_CHECKPOINT',
