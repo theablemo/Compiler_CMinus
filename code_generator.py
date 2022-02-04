@@ -289,7 +289,7 @@ def call_function(*args):
     program_block.add_instruction(program_block.i, 'ASSIGN', f'#{program_block.i + 2}', atts[args_length + 1])
     program_block.forward()
     # jp to func
-    program_block.add_instruction(program_block.i, 'JP', atts[0] + 1)
+    program_block.add_instruction(program_block.i, 'JP', atts[0])
     program_block.forward()
     # pop all from SS
     for _ in range(args_length + 1):
