@@ -1057,6 +1057,7 @@ class Parser:
                     self._add_leaf_to_tree(children, parent, 137)
                 elif self.lookahead[1] is TokenType.ID:
                     code_gen(self.lookahead[0], 'pid')
+                    self._add_leaf_to_tree(children, parent, 136)
                 elif self._is_in_follow_set(NonTerminal.FACTOR):
                     self._handle_missing_non_term(NonTerminal.FACTOR)
                     return None
