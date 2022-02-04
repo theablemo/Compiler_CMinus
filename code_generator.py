@@ -266,7 +266,7 @@ def mult(*args):
 
 def output(*args):
     name = SS[ss_top() - 1]
-    if name.lower() == 'output':
+    if name == 'output':
         top = SS.pop()
         program_block.add_instruction(program_block.i, 'PRINT', top)
         program_block.forward()
@@ -295,7 +295,7 @@ def call_function(*args):
     for _ in range(args_length + 1):
         SS.pop()
     # function output
-    t = memory.get_temp_address
+    t = memory.get_temp_address()
     program_block.add_instruction(program_block.i, 'ASSIGN', atts[args_length + 2], t)
     SS.append(t)
     program_block.forward()
