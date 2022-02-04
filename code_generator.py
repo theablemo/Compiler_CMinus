@@ -88,7 +88,7 @@ def set_var(*args):
 
 
 def set_arr(*args):
-    length = int(SS.pop()[:1])
+    length = int(SS.pop()[1:])
     lexeme = SS.pop()
     program_block.initialize_array(memory, symbol_table, lexeme, length)
 
@@ -107,7 +107,7 @@ def stop_symbol(*args):
 
 
 def numeric_label(*args):
-    scope_stack.append('#' + program_block.i)
+    SS.append('#' + program_block.i)
 
 
 def label(*args):
@@ -117,7 +117,7 @@ def label(*args):
 def until(*args):
     condition = SS.pop()
     l = SS.pop()
-    program_block.add_instruction(str(program_block.i), 'JPF', condition, l, '')
+    program_block.add_instruction(program_block.i, 'JPF', condition, l, '')
     program_block.forward()
 
 
