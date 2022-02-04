@@ -18,11 +18,12 @@ class Parser:
         self.syntax_io = SyntaxIO()
         self.tree_io = TreeIO()
         
-    def run_parser(self):
+    def run_parser(self, make_parse_tree=True):
         root = self.program()
-        self.tree_io.print_tree(root)
-        if not self.syntax_io.syntax_error_found:
-            self.syntax_io.print_no_syntax_error()
+        if make_parse_tree:
+            self.tree_io.print_tree(root)
+            if not self.syntax_io.syntax_error_found:
+                self.syntax_io.print_no_syntax_error()
 
 
     def program(self):
