@@ -13,6 +13,7 @@ scope_stack = []
 break_stack = []
 return_stack = []
 
+
 def ss_top():
     return len(SS) - 1
 
@@ -137,20 +138,24 @@ def end_break(*args):
             break
         break_stack.pop()
         program_block.add_instruction(j, 'JP', str(program_block.i), '', '')
-    
+
+
 def get_temp(*args):
     SS.append(memory.get_temp_address())
-    #todo: ask for zero in PB
+    # todo: ask for zero in PB
+
 
 def start_return(*args):
     return_stack.append((SpecialSymbol.RETURN_STACK_START, "#0"))
 
+
 def end_return(*args):
     top = return_stack.pop()
     while top[0] != SpecialSymbol.RETURN_STACK_START:
-        program_block.add_instruction(top[0] , 'ASSIGN', top[1], SS[ss_top()])
+        program_block.add_instruction(top[0], 'ASSIGN', top[1], SS[ss_top()])
         program_block.add_instruction(top[0] + 1, 'JP', str(program_block.i))
         top = return_stack.pop()
+
 
 def return_address(*args):
     func_name = SS[ss_top() - 3]
@@ -158,6 +163,7 @@ def return_address(*args):
         value = SS[ss_top() - 1]
         program_block.add_instruction(program_block.i, 'JP', f'@{value}')
         program_block.forward()
+
 
 def save_func_atts(*args):
     atts = []
@@ -168,12 +174,13 @@ def save_func_atts(*args):
     attribute_one = SS.pop()
     attribute_two = SS.pop()
     tmp_add = SS.pop()
-    func_name =  SS.pop()
+    func_name = SS.pop()
     atts.append(tmp_add)
     atts.reverse()
     atts.append(attribute_two)
     atts.append(attribute_one)
     symbol_table.add_to_table((func_name, 'function', atts))
+
 
 def func_backpatching(*args):
     end_of_func = SS.pop()
@@ -183,19 +190,23 @@ def func_backpatching(*args):
     else:
         program_block.add_instruction(end_of_func, 'JP', str(int(end_of_func) + 1))
         program_block.forward()
-    
+
+
 def pop(*args):
     SS.pop()
+
 
 def save(*args):
     SS.append(program_block.i)
     program_block.forward()
+
 
 def jpf(*args):
     i = program_block.i
     top_if = SS.pop()
     after_if = SS.pop()
     program_block.add_instruction(int(top_if), 'JPF', after_if, str(i))
+
 
 def jpf_save(*args):
     i = program_block.i
@@ -205,9 +216,11 @@ def jpf_save(*args):
     SS.append(i)
     program_block.forward()
 
+
 def jp(*args):
     after_else = SS.pop()
     program_block.add_instruction(int(after_else), 'JP', str(program_block.i))
+
 
 def return_func(*args):
     value = SS.pop()
@@ -215,11 +228,13 @@ def return_func(*args):
     program_block.forward()
     program_block.forward()
 
+
 def assign(*args):
     value = SS.pop()
     assignee = SS[ss_top()]
-    program_block.add_instruction(program_block.i, 'ASSIGN' , value, assignee)
+    program_block.add_instruction(program_block.i, 'ASSIGN', value, assignee)
     program_block.forward()
+
 
 def operation(*args):
     t = memory.get_temp_address()
@@ -238,6 +253,7 @@ def operation(*args):
     SS.append(t)
     program_block.forward()
 
+
 def mult(*args):
     t = memory.get_temp_address()
     i = program_block.i
@@ -247,12 +263,14 @@ def mult(*args):
     program_block.forward()
     SS.append(t)
 
+
 def output(*args):
     name = SS[ss_top() - 1]
     if name.lower() == 'output':
         top = SS.pop()
         program_block.add_instruction(program_block.i, 'PRINT', top)
         program_block.forward()
+
 
 def call_function(*args):
     if SS[ss_top()].lower() == 'output':
@@ -263,30 +281,29 @@ def call_function(*args):
         if isinstance(SS[i], list):
             atts = SS[i]
     args_length = len(atts) - 3
-    #args
+    # args
     for i in range(args_length):
         program_block.add_instruction(program_block.i, 'ASSIGN', SS[len(SS) - args_length + i], atts[i + 1])
         program_block.forward()
-    #return add
+    # return add
     program_block.add_instruction(program_block.i, 'ASSIGN', f'#{program_block.i + 2}', atts[args_length + 1])
     program_block.forward()
-    #jp to func
+    # jp to func
     program_block.add_instruction(program_block.i, 'JP', atts[0] + 1)
     program_block.forward()
-    #pop all from SS
+    # pop all from SS
     for _ in range(args_length + 1):
         SS.pop()
-    #function output
+    # function output
     t = memory.get_temp_address
     program_block.add_instruction(program_block.i, 'ASSIGN', atts[args_length + 2], t)
     SS.append(t)
     program_block.forward()
 
+
 def access_array_index(*args):
     pass
 
+
 def assign_array_index(*args):
     pass
-
-
-

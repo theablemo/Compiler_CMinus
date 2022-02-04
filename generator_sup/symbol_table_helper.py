@@ -1,3 +1,6 @@
+from generator_sup.special_symbols import SpecialSymbol
+
+
 class SymbolTable:
     def __init__(self) -> None:
         self.table = []
@@ -10,7 +13,8 @@ class SymbolTable:
 
     def get_address(self, identifier):
         for row in self.table[::-1]:
-            if row[0] == identifier:
+
+            if row is not SpecialSymbol.SYMBOL_TABLE_STOP and row[0] == identifier:
                 return row[2]
         raise Exception('ID not found in symbol table.')
 
