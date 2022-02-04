@@ -19,10 +19,11 @@ def ss_top():
 
 
 def code_gen(token, action):
+    print(action)
     return {
         "numeric_label": numeric_label,
-        "start_break": start_break,
-        "end_break": end_break,
+        "break_start": start_break,
+        "break_end": end_break,
         "until": until,
         "label": label,
         "break_func": break_func,
@@ -108,7 +109,7 @@ def stop_symbol(*args):
 
 
 def numeric_label(*args):
-    SS.append('#' + program_block.i)
+    SS.append('#' + str(program_block.i))
 
 
 def label(*args):
@@ -273,7 +274,7 @@ def output(*args):
 
 
 def call_function(*args):
-    if SS[ss_top()].lower() == 'output':
+    if SS[ss_top()] == 'output':
         return
     atts = []
     counter = ss_top()
