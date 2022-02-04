@@ -306,35 +306,6 @@ def call_function(*args):
     SS.append(t)
     program_block.forward()
 
-# def call_function(*args):
-#         if SS[len(SS) - 1] == 'output':
-#             return
-#         function_attributes = []
-#         for j in range(len(SS) - 1, -1, -1):
-#             if isinstance(SS[j], list):
-#                 function_attributes = SS[j]
-#         input_size = len(function_attributes) - 3
-#         # assign function inputs
-#         for j in range(input_size):
-#             program_block.add_instruction(program_block.i, 'ASSIGN', SS[len(SS) - input_size + j], function_attributes[j + 1])
-#             program_block.forward()
-#         # assign return address
-#         program_block.add_instruction(program_block.i, 'ASSIGN', f'#{program_block.i + 2}', function_attributes[input_size + 1])
-#         program_block.forward()
-#         # go  to function
-#         program_block.add_instruction(program_block.i, 'JP', function_attributes[0] + 1)
-#         program_block.forward()
-#         for j in range(input_size + 1):
-#             SS.pop()
-#         # create a new variable and assign function output to it
-#         address = memory.get_temp_address()
-#         SS.append(address)
-#         program_block.add_instruction(program_block.i, 'ASSIGN', function_attributes[input_size + 2], address)
-#         program_block.forward()
-
-# def access_array_index(*args):
-#     pass
-
 def assign_array_index(*args):
     index = SS.pop()
     address = SS.pop()
