@@ -181,7 +181,7 @@ def func_backpatching(*args):
     if func_name.lower() != 'main':
         program_block.add_instruction(end_of_func, 'JP', str(program_block.i))
     else:
-        program_block.add_instruction(end_of_func, 'JP', end_of_func)
+        program_block.add_instruction(end_of_func, 'JP', str(int(end_of_func) + 1))
         program_block.forward()
     
 def pop(*args):
