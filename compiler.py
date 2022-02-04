@@ -3,7 +3,7 @@
 from IO.code_gen_IO import CodeGenIO
 from IO.file_IO import TokenType
 from code_generator import program_block
-from m import Parser
+from parser import Parser
 from scanner import Scanner
 
 scanner = Scanner()

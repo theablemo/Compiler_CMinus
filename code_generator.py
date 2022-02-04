@@ -19,7 +19,7 @@ def ss_top():
 
 
 def code_gen(token, action):
-    print(action)
+    # print(action)
     return {
         "numeric_label": numeric_label,
         "break_start": start_break,
@@ -54,7 +54,7 @@ def code_gen(token, action):
         "mult": mult,
         "output": output,
         "call_function": call_function,
-        "access_array_index": access_array_index,
+        "access_array_index": assign_array_index,
         "assign_array_index": assign_array_index,
     }.get(action)(token)
 
@@ -142,7 +142,10 @@ def end_break(*args):
 
 
 def get_temp(*args):
-    SS.append(memory.get_temp_address())
+    t = memory.get_temp_address()
+    SS.append(t)
+    program_block.add_instruction(program_block.i, 'ASSIGN', '#0', str(t))
+    program_block.forward()
     # todo: ask for zero in PB
 
 
@@ -189,7 +192,9 @@ def func_backpatching(*args):
     if func_name.lower() != 'main':
         program_block.add_instruction(end_of_func, 'JP', str(program_block.i))
     else:
-        program_block.add_instruction(end_of_func, 'JP', str(int(end_of_func) + 1))
+        t = memory.get_temp_address()
+        program_block.add_instruction(end_of_func, 'ADD', '#0', '#0', t)
+        # program_block.add_instruction(end_of_func, 'JP', str(int(end_of_func) + 1))
         program_block.forward()
 
 
@@ -290,7 +295,7 @@ def call_function(*args):
     program_block.add_instruction(program_block.i, 'ASSIGN', f'#{program_block.i + 2}', atts[args_length + 1])
     program_block.forward()
     # jp to func
-    program_block.add_instruction(program_block.i, 'JP', atts[0])
+    program_block.add_instruction(program_block.i, 'JP', atts[0] + 1)
     program_block.forward()
     # pop all from SS
     for _ in range(args_length + 1):
@@ -301,10 +306,45 @@ def call_function(*args):
     SS.append(t)
     program_block.forward()
 
+# def call_function(*args):
+#         if SS[len(SS) - 1] == 'output':
+#             return
+#         function_attributes = []
+#         for j in range(len(SS) - 1, -1, -1):
+#             if isinstance(SS[j], list):
+#                 function_attributes = SS[j]
+#         input_size = len(function_attributes) - 3
+#         # assign function inputs
+#         for j in range(input_size):
+#             program_block.add_instruction(program_block.i, 'ASSIGN', SS[len(SS) - input_size + j], function_attributes[j + 1])
+#             program_block.forward()
+#         # assign return address
+#         program_block.add_instruction(program_block.i, 'ASSIGN', f'#{program_block.i + 2}', function_attributes[input_size + 1])
+#         program_block.forward()
+#         # go  to function
+#         program_block.add_instruction(program_block.i, 'JP', function_attributes[0] + 1)
+#         program_block.forward()
+#         for j in range(input_size + 1):
+#             SS.pop()
+#         # create a new variable and assign function output to it
+#         address = memory.get_temp_address()
+#         SS.append(address)
+#         program_block.add_instruction(program_block.i, 'ASSIGN', function_attributes[input_size + 2], address)
+#         program_block.forward()
 
-def access_array_index(*args):
-    pass
-
+# def access_array_index(*args):
+#     pass
 
 def assign_array_index(*args):
-    pass
+    index = SS.pop()
+    address = SS.pop()
+
+    t1 = str(memory.get_temp_address())
+    program_block.add_instruction(program_block.i, 'MULT', '#4', index, t1)
+    program_block.forward()
+    t2 = str(memory.get_temp_address())
+    program_block.add_instruction(program_block.i, 'ASSIGN', address, t2)
+    program_block.forward()
+    program_block.add_instruction(program_block.i, 'ADD', t2, t1, t1)
+    program_block.forward()
+    SS.append('@' + t1)
