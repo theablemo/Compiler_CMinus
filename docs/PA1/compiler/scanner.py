@@ -7,12 +7,9 @@ from scanner_sup.transition import Transition as tr
 class Scanner:
     def __init__(self) -> None:
         self.inputFile = InputFileIO()
-        # self.errorFile = LexicalErrorIO()
-        self.errorFile = LexicalErrorIO(False)
-        # self.symbolTableFile = SymbolTableIO()
-        self.symbolTableFile = SymbolTableIO(False)
-        # self.tokenFile = TokenIO()
-        self.tokenFile = TokenIO(False)
+        self.errorFile = LexicalErrorIO()
+        self.symbolTableFile = SymbolTableIO()
+        self.tokenFile = TokenIO()
         self.dfa = Dfa()
 
     def do_before_terminate(self):
@@ -20,18 +17,14 @@ class Scanner:
         self.errorFile.close_file()
 
     def get_next_token(self):
-        try:
-            a = self.inputFile.get_char()
-        except:
-            return '', TokenType.END
-
+        a = self.inputFile.get_char()
         
         self.dfa.reset_current_state()  # Make sure that we are at state 0
         token = self._handle_input(a)
         # print(token)
         if token is None:
             return self.get_next_token()
-        return (*token, self.inputFile.lineno)
+        return token
 
     def print_token(self):
         self.tokenFile.write_token(10, "asdfa", TokenType.KEYWORD)

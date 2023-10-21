@@ -1,4 +1,4 @@
-keywords = ['if', 'else', 'void', 'int', 'repeat', 'break', 'until', 'return', 'endif']
+keywords = ['if', 'else', 'void', 'int', 'repeat', 'break', 'until', 'return']
 
 
 def truncate_unclosed_comment(comment):

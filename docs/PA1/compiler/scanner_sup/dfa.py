@@ -56,7 +56,6 @@ class Dfa:
             },
             'e': {
                 '/': 'c',
-                '*': 'e',
                 tr.EOF: 'e5',
                 tr.OTHER7: 'd'
             }
